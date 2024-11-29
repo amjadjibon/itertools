@@ -49,3 +49,17 @@ func (it *Iterator[V]) Reverse() *Iterator[V] {
 	}
 	return ToIter(xs)
 }
+
+// Filter returns an Iterator that only yields elements that satisfy the predicate
+func (it *Iterator[V]) Filter(predicate func(V) bool) *Iterator[V] {
+	return &Iterator[V]{
+		seq: func(yield func(V) bool) {
+			it.seq(func(v V) bool {
+				if predicate(v) {
+					return yield(v)
+				}
+				return true
+			})
+		},
+	}
+}

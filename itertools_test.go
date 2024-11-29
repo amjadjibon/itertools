@@ -56,3 +56,21 @@ func TestIterator_Reverse(t *testing.T) {
 		}
 	}
 }
+
+func TestIterator_Filter(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+	filtered := iter.Filter(func(v int) bool {
+		return v%2 == 0
+	}).Collect()
+
+	if len(filtered) != 2 {
+		t.Errorf("expected 2 elements, got %d", len(filtered))
+	}
+
+	for i, v := range filtered {
+		if slice[1+i*2] != v {
+			t.Errorf("expected %d, got %d", v, slice[1+i*2])
+		}
+	}
+}
