@@ -116,3 +116,17 @@ func (it *Iterator[V]) Drop(n int) *Iterator[V] {
 		},
 	}
 }
+
+// TakeWhile returns an Iterator that yields elements while the predicate is true
+func (it *Iterator[V]) TakeWhile(predicate func(V) bool) *Iterator[V] {
+	return &Iterator[V]{
+		seq: func(yield func(V) bool) {
+			it.seq(func(v V) bool {
+				if predicate(v) {
+					return yield(v)
+				}
+				return false
+			})
+		},
+	}
+}
