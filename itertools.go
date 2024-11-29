@@ -84,3 +84,19 @@ func (it *Iterator[V]) Chain(other *Iterator[V]) *Iterator[V] {
 		},
 	}
 }
+
+// Take returns an Iterator that yields the first n elements of the Iterator
+func (it *Iterator[V]) Take(n int) *Iterator[V] {
+	return &Iterator[V]{
+		seq: func(yield func(V) bool) {
+			i := 0
+			it.seq(func(v V) bool {
+				if i < n {
+					i++
+					return yield(v)
+				}
+				return false
+			})
+		},
+	}
+}
