@@ -40,3 +40,12 @@ func (it *Iterator[V]) Each(f func(V)) {
 		return true
 	})
 }
+
+// Reverse returns an Iterator that iterates over the elements in reverse order
+func (it *Iterator[V]) Reverse() *Iterator[V] {
+	xs := it.Collect()
+	for i, j := 0, len(xs)-1; i < j; i, j = i+1, j-1 {
+		xs[i], xs[j] = xs[j], xs[i]
+	}
+	return ToIter(xs)
+}

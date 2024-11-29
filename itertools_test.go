@@ -40,3 +40,19 @@ func TestIterator_Each(t *testing.T) {
 		}
 	}
 }
+
+func TestIterator_Reverse(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+	reverse := iter.Reverse().Collect()
+
+	if len(reverse) != 5 {
+		t.Errorf("expected 5 elements, got %d", len(reverse))
+	}
+
+	for i, v := range reverse {
+		if slice[4-i] != v {
+			t.Errorf("expected %d, got %d", v, slice[4-i])
+		}
+	}
+}
