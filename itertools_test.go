@@ -92,3 +92,27 @@ func TestIterator_Map(t *testing.T) {
 		}
 	}
 }
+
+func TestIterator_Chain(t *testing.T) {
+	slice1 := []int{1, 2, 3}
+	slice2 := []int{4, 5, 6}
+	iter1 := itertools.ToIter(slice1)
+	iter2 := itertools.ToIter(slice2)
+	chain := iter1.Chain(iter2).Collect()
+
+	if len(chain) != 6 {
+		t.Errorf("expected 6 elements, got %d", len(chain))
+	}
+
+	for i, v := range chain {
+		if i < 3 {
+			if slice1[i] != v {
+				t.Errorf("expected %d, got %d", v, slice1[i])
+			}
+		} else {
+			if slice2[i-3] != v {
+				t.Errorf("expected %d, got %d", v, slice2[i-3])
+			}
+		}
+	}
+}

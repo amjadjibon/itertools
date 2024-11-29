@@ -74,3 +74,13 @@ func (it *Iterator[V]) Map(f func(V) V) *Iterator[V] {
 		},
 	}
 }
+
+// Chain concatenates two iterators
+func (it *Iterator[V]) Chain(other *Iterator[V]) *Iterator[V] {
+	return &Iterator[V]{
+		seq: func(yield func(V) bool) {
+			it.seq(yield)
+			other.seq(yield)
+		},
+	}
+}
