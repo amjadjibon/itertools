@@ -166,3 +166,21 @@ func TestIterator_TakeWhile(t *testing.T) {
 		}
 	}
 }
+
+func TestIterator_DropWhile(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+	dropped := iter.DropWhile(func(v int) bool {
+		return v < 3
+	}).Collect()
+
+	if len(dropped) != 3 {
+		t.Errorf("expected 3 elements, got %d", len(dropped))
+	}
+
+	for i, v := range dropped {
+		if slice[i+2] != v {
+			t.Errorf("expected %d, got %d", v, slice[i+2])
+		}
+	}
+}

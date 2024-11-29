@@ -130,3 +130,22 @@ func (it *Iterator[V]) TakeWhile(predicate func(V) bool) *Iterator[V] {
 		},
 	}
 }
+
+// DropWhile returns an Iterator that skips elements while the predicate is true
+func (it *Iterator[V]) DropWhile(predicate func(V) bool) *Iterator[V] {
+	return &Iterator[V]{
+		seq: func(yield func(V) bool) {
+			var dropping bool
+			it.seq(func(v V) bool {
+				if dropping {
+					return yield(v)
+				}
+				if !predicate(v) {
+					dropping = true
+					return yield(v)
+				}
+				return true
+			})
+		},
+	}
+}
