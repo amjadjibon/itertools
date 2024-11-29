@@ -74,3 +74,21 @@ func TestIterator_Filter(t *testing.T) {
 		}
 	}
 }
+
+func TestIterator_Map(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+	mapped := iter.Map(func(v int) int {
+		return v * 2
+	}).Collect()
+
+	if len(mapped) != 5 {
+		t.Errorf("expected 5 elements, got %d", len(mapped))
+	}
+
+	for i, v := range mapped {
+		if slice[i]*2 != v {
+			t.Errorf("expected %d, got %d", v, slice[i]*2)
+		}
+	}
+}

@@ -63,3 +63,14 @@ func (it *Iterator[V]) Filter(predicate func(V) bool) *Iterator[V] {
 		},
 	}
 }
+
+// Map transforms each element in the Iterator using a provided function.
+func (it *Iterator[V]) Map(f func(V) V) *Iterator[V] {
+	return &Iterator[V]{
+		seq: func(yield func(V) bool) {
+			it.seq(func(v V) bool {
+				return yield(f(v))
+			})
+		},
+	}
+}
