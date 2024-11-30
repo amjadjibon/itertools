@@ -4,7 +4,48 @@ import (
 	"testing"
 
 	"github.com/amjadjibon/itertools"
+	"github.com/stretchr/testify/assert"
 )
+
+func TestIterator_Next(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+	idx := 0
+	for iter.Next() {
+		curr := iter.Current()
+		if slice[idx] != curr {
+			t.Errorf("expected %d, got %d", curr, slice[idx])
+		}
+		idx++
+	}
+}
+
+func TestIterator_Next_Empty(t *testing.T) {
+	iter := itertools.ToIter([]int{})
+	if iter.Next() {
+		t.Errorf("expected false, got true")
+	}
+}
+
+func TestIterator_Current_panics_before_next(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+	assert.Panics(t, func() {
+		iter.Current()
+	})
+}
+
+func TestIterator_Current_panics_after_done(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	for iter.Next() {
+	}
+
+	assert.Panics(t, func() {
+		iter.Current()
+	})
+}
 
 func TestIterator_Collect(t *testing.T) {
 	slice := []int{1, 2, 3, 4, 5}

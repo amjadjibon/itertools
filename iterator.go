@@ -7,20 +7,66 @@ import (
 // Iterator is a generic iterator that can be used
 // to iterate over any type of sequence
 type Iterator[V any] struct {
-	seq iter.Seq[V]
+	seq  iter.Seq[V]
+	curr *V
+	done bool
 }
 
 // ToIter creates an Iterator from a slice
 func ToIter[V any](slice []V) *Iterator[V] {
+	ch := make(chan V)
+	go func() {
+		for _, v := range slice {
+			ch <- v
+		}
+		close(ch)
+	}()
+
 	return &Iterator[V]{
 		seq: func(yield func(V) bool) {
-			for _, v := range slice {
+			for v := range ch {
 				if !yield(v) {
 					return
 				}
 			}
 		},
 	}
+}
+
+// Next advances the iterator and returns true if there is a next element.
+func (it *Iterator[V]) Next() bool {
+	if it.done {
+		return false
+	}
+
+	var next V
+	hasNext := false
+	it.seq(func(v V) bool {
+		next = v
+		hasNext = true
+		return false
+	})
+
+	if hasNext {
+		it.curr = &next
+		return true
+	}
+
+	it.done = true
+	return false
+}
+
+// Current returns the current element of the iterator
+func (it *Iterator[V]) Current() V {
+	if it.curr == nil {
+		panic("iterator is not started")
+	}
+
+	if it.done {
+		panic("iterator is done")
+	}
+
+	return *it.curr
 }
 
 // Collect collects all elements from the Iterator into a slice.
