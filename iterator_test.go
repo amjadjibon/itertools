@@ -188,3 +188,15 @@ func TestIterator_All(t *testing.T) {
 
 	assert.True(t, all)
 }
+
+func TestIterator_Find(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	result, found := iter.Find(func(v int) bool {
+		return v == 3
+	})
+
+	assert.True(t, found)
+	assert.Equal(t, 3, result)
+}

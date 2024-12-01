@@ -232,3 +232,20 @@ func (it *Iterator[V]) Any(predicate func(V) bool) bool {
 	})
 	return any
 }
+
+// Find returns the first element that satisfies the predicate
+func (it *Iterator[V]) Find(predicate func(V) bool) (V, bool) {
+	var result V
+	var found bool
+
+	it.seq(func(v V) bool {
+		if predicate(v) {
+			result = v
+			found = true
+			return false
+		}
+		return true
+	})
+
+	return result, found
+}
