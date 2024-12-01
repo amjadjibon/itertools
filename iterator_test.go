@@ -271,3 +271,15 @@ func TestIterator_Max_Empty(t *testing.T) {
 	assert.False(t, found)
 	assert.Equal(t, 0, max)
 }
+
+func TestIterator_Partition(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	odd, even := iter.Partition(func(v int) bool {
+		return v%2 == 0
+	})
+
+	assert.Equal(t, []int{2, 4}, even.Collect())
+	assert.Equal(t, []int{1, 3, 5}, odd.Collect())
+}
