@@ -208,6 +208,11 @@ func (it *Iterator[V]) Last() V {
 	return it.Reverse().First()
 }
 
+// Nth returns the nth element of the Iterator
+func (it *Iterator[V]) Nth(n int) V {
+	return it.Drop(n).First()
+}
+
 // All returns true if all elements in the Iterator satisfy the predicate
 func (it *Iterator[V]) All(predicate func(V) bool) bool {
 	all := true

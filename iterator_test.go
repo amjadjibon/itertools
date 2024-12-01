@@ -167,6 +167,15 @@ func TestIterator_Last(t *testing.T) {
 	assert.Equal(t, 5, last)
 }
 
+func TestIterator_Nth(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	nth := iter.Nth(2)
+
+	assert.Equal(t, 3, nth)
+}
+
 func TestIterator_Any(t *testing.T) {
 	slice := []int{1, 2, 3, 4, 5}
 	iter := itertools.ToIter(slice)
