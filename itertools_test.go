@@ -1,6 +1,7 @@
 package itertools_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/amjadjibon/itertools"
@@ -92,4 +93,57 @@ func TestSumComplex(t *testing.T) {
 
 	sum := itertools.Sum(iter, func(v Complex) int { return v.A + v.B }, 0)
 	assert.Equal(t, 21, sum)
+}
+
+func TestFoldSum(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	sum := itertools.Fold(iter, func(acc, v int) int { return acc + v }, 0)
+	assert.Equal(t, 15, sum)
+}
+
+func TestFoldProduct(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	product := itertools.Fold(iter, func(acc, v int) int { return acc * v }, 1)
+	assert.Equal(t, 120, product)
+}
+
+func TestFoldConcat(t *testing.T) {
+	slice := []string{"a", "b", "c", "d", "e"}
+	iter := itertools.ToIter(slice)
+
+	concat := itertools.Fold(iter, func(acc, v string) string { return acc + v }, "")
+	assert.Equal(t, "abcde", concat)
+}
+
+func TestProduct(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	product := itertools.Product(iter, func(v int) int { return v }, 1)
+	assert.Equal(t, 120, product)
+}
+
+func TestProductFloat(t *testing.T) {
+	slice := []float64{1.1, 2.2, 3.3, 4.4, 5.5}
+	iter := itertools.ToIter(slice)
+
+	product := itertools.Product(iter, func(v float64) float64 { return v }, 1)
+	assert.Equal(t, fmt.Sprintf("%.2f", 1.1*2.2*3.3*4.4*5.5), fmt.Sprintf("%.2f", product))
+}
+
+func TestProductComplex(t *testing.T) {
+	type Complex struct {
+		A int
+		B int
+	}
+
+	slice := []Complex{{1, 2}, {3, 4}, {5, 6}}
+	iter := itertools.ToIter(slice)
+
+	product := itertools.Product(iter, func(v Complex) int { return v.A * v.B }, 1)
+	assert.Equal(t, 720, product)
 }

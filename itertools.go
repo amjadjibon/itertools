@@ -1,6 +1,10 @@
 package itertools
 
-import "cmp"
+import (
+	"cmp"
+
+	"golang.org/x/exp/constraints"
+)
 
 // Zip combines two iterators element-wise into a single iterator of pairs.
 func Zip[A, B any](it1 *Iterator[A], it2 *Iterator[B]) *Iterator[struct {
@@ -73,14 +77,28 @@ func Zip2[A, B any](it1 *Iterator[A], it2 *Iterator[B], fill struct {
 	}
 }
 
-// Sum adds all elements of the iterator
-func Sum[V any, T cmp.Ordered](it *Iterator[V], transform func(V) T, zero T) T {
-	sum := zero
+// Fold accumulates the elements of the iterator
+func Fold[V any, T any](it *Iterator[V], transform func(T, V) T, initial T) T {
+	acc := initial
 
 	it.seq(func(v V) bool {
-		sum += transform(v)
+		acc = transform(acc, v)
 		return true
 	})
 
-	return sum
+	return acc
+}
+
+// Sum adds all elements of the iterator
+func Sum[V any, T cmp.Ordered](it *Iterator[V], transform func(V) T, zero T) T {
+	return Fold(it, func(acc T, v V) T { return acc + transform(v) }, zero)
+}
+
+type Productable interface {
+	constraints.Integer | constraints.Float | constraints.Complex
+}
+
+// Product multiplies all elements of the iterator
+func Product[V any, T Productable](it *Iterator[V], transform func(V) T, one T) T {
+	return Fold(it, func(acc T, v V) T { return acc * transform(v) }, one)
 }
