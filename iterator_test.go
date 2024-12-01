@@ -301,3 +301,41 @@ func TestIterator_Count(t *testing.T) {
 
 	assert.Equal(t, 5, count)
 }
+
+func TestIterator_Unique(t *testing.T) {
+	slice := []int{1, 2, 2, 3, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	unique := iter.Unique(func(i int) any {
+		return i
+	})
+
+	assert.Equal(t, []int{1, 2, 3, 4, 5}, unique.Collect())
+}
+
+func TestIterator_Unique_complex(t *testing.T) {
+	type person struct {
+		Name string
+		Age  int
+	}
+
+	slice := []person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Alice", 25},
+		{"Charlie", 35},
+		{"Bob", 30},
+	}
+
+	iter := itertools.ToIter(slice)
+
+	unique := iter.Unique(func(p person) any {
+		return p.Name
+	})
+
+	assert.Equal(t, []person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Charlie", 35},
+	}, unique.Collect())
+}

@@ -325,3 +325,16 @@ func (it *Iterator[V]) Count() int {
 	})
 	return count
 }
+
+// Unique returns an Iterator with only unique elements
+func (it *Iterator[V]) Unique(keyFunc func(V) any) *Iterator[V] {
+	seen := make(map[any]struct{})
+	return it.Filter(func(v V) bool {
+		key := keyFunc(v)
+		if _, ok := seen[key]; ok {
+			return false
+		}
+		seen[key] = struct{}{}
+		return true
+	})
+}
