@@ -2,6 +2,7 @@ package itertools
 
 import (
 	"iter"
+	"sort"
 )
 
 // Iterator is a generic iterator that can be used
@@ -248,4 +249,13 @@ func (it *Iterator[V]) Find(predicate func(V) bool) (V, bool) {
 	})
 
 	return result, found
+}
+
+// Sort returns an Iterator with elements sorted in ascending order using the provided less function.
+func (it *Iterator[V]) Sort(less func(a, b V) bool) *Iterator[V] {
+	xs := it.Collect()
+	sort.Slice(xs, func(i, j int) bool {
+		return less(xs[i], xs[j])
+	})
+	return ToIter(xs)
 }

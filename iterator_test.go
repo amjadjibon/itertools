@@ -212,3 +212,14 @@ func TestIterator_Find_NotFound(t *testing.T) {
 	assert.False(t, found)
 	assert.Equal(t, 0, result)
 }
+
+func TestIterator_Sort(t *testing.T) {
+	slice := []int{5, 2, 4, 1, 3}
+	iter := itertools.ToIter(slice)
+
+	sorted := iter.Sort(func(a, b int) bool {
+		return a < b
+	}).Collect()
+
+	assert.Equal(t, []int{1, 2, 3, 4, 5}, sorted)
+}
