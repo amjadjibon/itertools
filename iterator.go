@@ -293,7 +293,7 @@ func (it *Iterator[V]) Max(less func(a, b V) bool) (V, bool) {
 }
 
 // Partition returns two Iterators, one with elements that satisfy the predicate and one with elements that don't
-func (it *Iterator[V]) Partition(predicate func(V) bool) (*Iterator[V], *Iterator[V]) {
+func (it *Iterator[V]) Partition(predicate func(V) bool) (matched *Iterator[V], unmatched *Iterator[V]) {
 	var yes []V
 	var no []V
 
@@ -306,7 +306,9 @@ func (it *Iterator[V]) Partition(predicate func(V) bool) (*Iterator[V], *Iterato
 		return true
 	})
 
-	return ToIter(yes), ToIter(no)
+	matched = ToIter(yes)
+	unmatched = ToIter(no)
+	return
 }
 
 // Count returns the number of elements in the Iterator

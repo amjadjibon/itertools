@@ -276,7 +276,7 @@ func TestIterator_Partition(t *testing.T) {
 	slice := []int{1, 2, 3, 4, 5}
 	iter := itertools.ToIter(slice)
 
-	odd, even := iter.Partition(func(v int) bool {
+	even, odd := iter.Partition(func(v int) bool {
 		return v%2 == 0
 	})
 
