@@ -308,3 +308,13 @@ func (it *Iterator[V]) Partition(predicate func(V) bool) (*Iterator[V], *Iterato
 
 	return ToIter(yes), ToIter(no)
 }
+
+// Count returns the number of elements in the Iterator
+func (it *Iterator[V]) Count() int {
+	var count int
+	it.seq(func(V) bool {
+		count++
+		return true
+	})
+	return count
+}

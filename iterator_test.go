@@ -283,3 +283,12 @@ func TestIterator_Partition(t *testing.T) {
 	assert.Equal(t, []int{2, 4}, even.Collect())
 	assert.Equal(t, []int{1, 3, 5}, odd.Collect())
 }
+
+func TestIterator_Count(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	count := iter.Count()
+
+	assert.Equal(t, 5, count)
+}
