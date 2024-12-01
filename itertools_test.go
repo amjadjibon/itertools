@@ -177,3 +177,13 @@ func TestLazyChunks(t *testing.T) {
 		}
 	}
 }
+
+func TestFlatten(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	iter := itertools.ToIter(slice)
+
+	chunkList := itertools.ChunkList(iter, 3)
+
+	flatten := itertools.Flatten(chunkList...)
+	assert.Equal(t, slice, flatten.Collect())
+}

@@ -158,3 +158,26 @@ func Chunks[V any](it *Iterator[V], size int) *Iterator[*Iterator[V]] {
 		},
 	}
 }
+
+// ChunkList returns an Iterator of slices of the given size
+func ChunkList[V any](it *Iterator[V], size int) []*Iterator[V] {
+	chunks := Chunks(it, size)
+	result := make([]*Iterator[V], 0)
+	for chunks.Next() {
+		result = append(result, chunks.Current())
+	}
+	return result
+}
+
+// Flatten flattens a list of iterators into a single iterator
+func Flatten[V any](its ...*Iterator[V]) *Iterator[V] {
+	return &Iterator[V]{
+		seq: func(yield func(V) bool) {
+			for _, it := range its {
+				it.seq(func(v V) bool {
+					return yield(v)
+				})
+			}
+		},
+	}
+}
