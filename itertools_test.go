@@ -147,3 +147,33 @@ func TestProductComplex(t *testing.T) {
 	product := itertools.Product(iter, func(v Complex) int { return v.A * v.B }, 1)
 	assert.Equal(t, 720, product)
 }
+
+func TestChunkSlice(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	iter := itertools.ToIter(slice)
+
+	chunks := itertools.ChunkSlice(iter, 3)
+	expected := [][]int{{1, 2, 3}, {4, 5, 6}, {7, 8}}
+
+	for i := 0; chunks.Next(); i++ {
+		chunk := itertools.ToIter(chunks.Current())
+		for j := 0; chunk.Next(); j++ {
+			assert.Equal(t, expected[i][j], chunk.Current())
+		}
+	}
+}
+
+func TestLazyChunks(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	iter := itertools.ToIter(slice)
+
+	chunks := itertools.Chunks(iter, 3)
+	expected := [][]int{{1, 2, 3}, {4, 5, 6}, {7, 8}}
+
+	for i := 0; chunks.Next(); i++ {
+		chunk := chunks.Current()
+		for j := 0; chunk.Next(); j++ {
+			assert.Equal(t, expected[i][j], chunk.Current())
+		}
+	}
+}

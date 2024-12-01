@@ -102,3 +102,59 @@ type Productable interface {
 func Product[V any, T Productable](it *Iterator[V], transform func(V) T, one T) T {
 	return Fold(it, func(acc T, v V) T { return acc * transform(v) }, one)
 }
+
+// ChunkSlice returns an Iterator of slices of the given size
+func ChunkSlice[V any](it *Iterator[V], size int) *Iterator[[]V] {
+	return &Iterator[[]V]{
+		seq: func(yield func([]V) bool) {
+			chunk := make([]V, 0, size)
+			it.seq(func(v V) bool {
+				chunk = append(chunk, v)
+				if len(chunk) == size {
+					// Create a new slice to avoid sharing the underlying array
+					result := make([]V, size)
+					copy(result, chunk)
+					if !yield(result) {
+						return false
+					}
+					chunk = chunk[:0] // Clear the chunk while preserving capacity
+				}
+				return true
+			})
+			// Handle any remaining elements in the last chunk
+			if len(chunk) > 0 {
+				result := make([]V, len(chunk))
+				copy(result, chunk)
+				yield(result)
+			}
+		},
+	}
+}
+
+// Chunks return an list of iterators of slices of the given size
+func Chunks[V any](it *Iterator[V], size int) *Iterator[*Iterator[V]] {
+	return &Iterator[*Iterator[V]]{
+		seq: func(yield func(*Iterator[V]) bool) {
+			chunk := make([]V, 0, size)
+			it.seq(func(v V) bool {
+				chunk = append(chunk, v)
+				if len(chunk) == size {
+					// Create a new slice to avoid sharing the underlying array
+					result := make([]V, size)
+					copy(result, chunk)
+					if !yield(ToIter(result)) {
+						return false
+					}
+					chunk = chunk[:0] // Clear the chunk while preserving capacity
+				}
+				return true
+			})
+			// Handle any remaining elements in the last chunk
+			if len(chunk) > 0 {
+				result := make([]V, len(chunk))
+				copy(result, chunk)
+				yield(ToIter(result))
+			}
+		},
+	}
+}
