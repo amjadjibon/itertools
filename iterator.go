@@ -206,3 +206,29 @@ func (it *Iterator[V]) First() V {
 func (it *Iterator[V]) Last() V {
 	return it.Reverse().First()
 }
+
+// All returns true if all elements in the Iterator satisfy the predicate
+func (it *Iterator[V]) All(predicate func(V) bool) bool {
+	all := true
+	it.seq(func(v V) bool {
+		if !predicate(v) {
+			all = false
+			return false
+		}
+		return true
+	})
+	return all
+}
+
+// Any returns true if any element in the Iterator satisfies the predicate
+func (it *Iterator[V]) Any(predicate func(V) bool) bool {
+	any := false
+	it.seq(func(v V) bool {
+		if predicate(v) {
+			any = true
+			return false
+		}
+		return true
+	})
+	return any
+}

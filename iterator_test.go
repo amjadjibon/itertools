@@ -166,3 +166,25 @@ func TestIterator_Last(t *testing.T) {
 
 	assert.Equal(t, 5, last)
 }
+
+func TestIterator_Any(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	any := iter.Any(func(v int) bool {
+		return v == 3
+	})
+
+	assert.True(t, any)
+}
+
+func TestIterator_All(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	all := iter.All(func(v int) bool {
+		return v < 6
+	})
+
+	assert.True(t, all)
+}
