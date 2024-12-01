@@ -223,3 +223,51 @@ func TestIterator_Sort(t *testing.T) {
 
 	assert.Equal(t, []int{1, 2, 3, 4, 5}, sorted)
 }
+
+func TestIterator_Min(t *testing.T) {
+	slice := []int{5, 2, 4, 1, 3}
+	iter := itertools.ToIter(slice)
+
+	min, found := iter.Min(func(a, b int) bool {
+		return a < b
+	})
+
+	assert.True(t, found)
+	assert.Equal(t, 1, min)
+}
+
+func TestIterator_Min_Empty(t *testing.T) {
+	slice := []int{}
+	iter := itertools.ToIter(slice)
+
+	min, found := iter.Min(func(a, b int) bool {
+		return a < b
+	})
+
+	assert.False(t, found)
+	assert.Equal(t, 0, min)
+}
+
+func TestIterator_Max(t *testing.T) {
+	slice := []int{5, 2, 4, 1, 3}
+	iter := itertools.ToIter(slice)
+
+	max, found := iter.Max(func(a, b int) bool {
+		return a < b
+	})
+
+	assert.True(t, found)
+	assert.Equal(t, 5, max)
+}
+
+func TestIterator_Max_Empty(t *testing.T) {
+	slice := []int{}
+	iter := itertools.ToIter(slice)
+
+	max, found := iter.Max(func(a, b int) bool {
+		return a < b
+	})
+
+	assert.False(t, found)
+	assert.Equal(t, 0, max)
+}

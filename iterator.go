@@ -259,3 +259,35 @@ func (it *Iterator[V]) Sort(less func(a, b V) bool) *Iterator[V] {
 	})
 	return ToIter(xs)
 }
+
+// Min returns the minimum element in the Iterator using the provided less function
+func (it *Iterator[V]) Min(less func(a, b V) bool) (V, bool) {
+	var min V
+	var found bool
+
+	it.seq(func(v V) bool {
+		if !found || less(v, min) {
+			min = v
+			found = true
+		}
+		return true
+	})
+
+	return min, found
+}
+
+// Max returns the maximum element in the Iterator using the provided less function
+func (it *Iterator[V]) Max(less func(a, b V) bool) (V, bool) {
+	var max V
+	var found bool
+
+	it.seq(func(v V) bool {
+		if !found || less(max, v) {
+			max = v
+			found = true
+		}
+		return true
+	})
+
+	return max, found
+}
