@@ -195,3 +195,14 @@ func (it *Iterator[V]) DropWhile(predicate func(V) bool) *Iterator[V] {
 		},
 	}
 }
+
+// First returns the first element of the Iterator
+func (it *Iterator[V]) First() V {
+	it.Next()
+	return it.Current()
+}
+
+// Last returns the last element of the Iterator
+func (it *Iterator[V]) Last() V {
+	return it.Reverse().First()
+}

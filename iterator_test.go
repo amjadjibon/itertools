@@ -148,3 +148,21 @@ func TestIterator_DropWhile(t *testing.T) {
 
 	assert.Equal(t, []int{3, 4, 5}, dropped)
 }
+
+func TestIterator_First(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	first := iter.First()
+
+	assert.Equal(t, 1, first)
+}
+
+func TestIterator_Last(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	last := iter.Last()
+
+	assert.Equal(t, 5, last)
+}
