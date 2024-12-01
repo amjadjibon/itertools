@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/amjadjibon/itertools"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestZip(t *testing.T) {
@@ -62,4 +63,33 @@ func TestZip2(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestSum(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	sum := itertools.Sum(iter, func(v int) int { return v }, 0)
+	assert.Equal(t, 15, sum)
+}
+
+func TestSumFloat(t *testing.T) {
+	slice := []float64{1.1, 2.2, 3.3, 4.4, 5.5}
+	iter := itertools.ToIter(slice)
+
+	sum := itertools.Sum(iter, func(v float64) float64 { return v }, 0)
+	assert.Equal(t, 16.5, sum)
+}
+
+func TestSumComplex(t *testing.T) {
+	type Complex struct {
+		A int
+		B int
+	}
+
+	slice := []Complex{{1, 2}, {3, 4}, {5, 6}}
+	iter := itertools.ToIter(slice)
+
+	sum := itertools.Sum(iter, func(v Complex) int { return v.A + v.B }, 0)
+	assert.Equal(t, 21, sum)
 }

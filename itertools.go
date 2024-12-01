@@ -1,5 +1,7 @@
 package itertools
 
+import "cmp"
+
 // Zip combines two iterators element-wise into a single iterator of pairs.
 func Zip[A, B any](it1 *Iterator[A], it2 *Iterator[B]) *Iterator[struct {
 	First  A
@@ -69,4 +71,16 @@ func Zip2[A, B any](it1 *Iterator[A], it2 *Iterator[B], fill struct {
 			}
 		},
 	}
+}
+
+// Sum adds all elements of the iterator
+func Sum[V any, T cmp.Ordered](it *Iterator[V], transform func(V) T, zero T) T {
+	sum := zero
+
+	it.seq(func(v V) bool {
+		sum += transform(v)
+		return true
+	})
+
+	return sum
 }
