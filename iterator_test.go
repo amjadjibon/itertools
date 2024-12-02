@@ -339,3 +339,42 @@ func TestIterator_Unique_complex(t *testing.T) {
 		{"Charlie", 35},
 	}, unique.Collect())
 }
+
+func TestIterator_GroupBy(t *testing.T) {
+	type person struct {
+		Name string
+		Age  int
+	}
+
+	slice := []person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Alice", 26},
+		{"Charlie", 35},
+		{"Bob", 43},
+	}
+
+	iter := itertools.ToIter(slice)
+
+	groups := iter.GroupBy(func(p person) string {
+		return p.Name
+	})
+
+	assert.Equal(t, map[string][]person{
+		"Alice":   {{Name: "Alice", Age: 25}, {Name: "Alice", Age: 26}},
+		"Bob":     {{Name: "Bob", Age: 30}, {Name: "Bob", Age: 43}},
+		"Charlie": {{Name: "Charlie", Age: 35}},
+	}, groups)
+
+	alices := itertools.ToIter(groups["Alice"])
+	alicesAges := itertools.Sum(alices, func(p person) int { return p.Age }, 0)
+	assert.Equal(t, 51, alicesAges)
+
+	bobs := itertools.ToIter(groups["Bob"])
+	bobsMaxAge, _ := bobs.Max(func(a, b person) bool { return a.Age < b.Age })
+	assert.Equal(t, person{Name: "Bob", Age: 43}, bobsMaxAge)
+
+	charlies := itertools.ToIter(groups["Charlie"])
+	charliesCount := charlies.Count()
+	assert.Equal(t, 1, charliesCount)
+}

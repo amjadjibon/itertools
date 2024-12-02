@@ -338,3 +338,14 @@ func (it *Iterator[V]) Unique(keyFunc func(V) any) *Iterator[V] {
 		return true
 	})
 }
+
+// GroupBy groups elements by a key function into a map.
+func (it *Iterator[V]) GroupBy(keyFunc func(V) string) map[string][]V {
+	groups := make(map[string][]V)
+	it.seq(func(v V) bool {
+		key := keyFunc(v)
+		groups[key] = append(groups[key], v)
+		return true
+	})
+	return groups
+}
