@@ -349,3 +349,18 @@ func (it *Iterator[V]) GroupBy(keyFunc func(V) string) map[string][]V {
 	})
 	return groups
 }
+
+func (it *Iterator[V]) Cycle() *Iterator[V] {
+	xs := it.Collect()
+	return &Iterator[V]{
+		seq: func(yield func(V) bool) {
+			for {
+				for _, v := range xs {
+					if !yield(v) {
+						return
+					}
+				}
+			}
+		},
+	}
+}

@@ -378,3 +378,12 @@ func TestIterator_GroupBy(t *testing.T) {
 	charliesCount := charlies.Count()
 	assert.Equal(t, 1, charliesCount)
 }
+
+func TestIterator_Cycle(t *testing.T) {
+	slice := []int{1, 2, 3}
+	iter := itertools.ToIter(slice)
+
+	cycle := iter.Cycle().Take(7).Collect()
+
+	assert.Equal(t, []int{1, 2, 3, 1, 2, 3, 1}, cycle)
+}
