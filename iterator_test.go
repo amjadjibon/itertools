@@ -439,3 +439,45 @@ func TestIterator_Union_complex(t *testing.T) {
 		{"David", 40},
 	}, union)
 }
+
+func TestIterator_Intersection(t *testing.T) {
+	slice1 := []int{1, 2, 3}
+	slice2 := []int{3, 4, 5}
+	iter1 := itertools.ToIter(slice1)
+	iter2 := itertools.ToIter(slice2)
+
+	intersection := iter1.Intersection(iter2, func(i int) any {
+		return i
+	}).Collect()
+
+	assert.Equal(t, []int{3}, intersection)
+}
+
+func TestIterator_Intersection_complex(t *testing.T) {
+	type person struct {
+		Name string
+		Age  int
+	}
+
+	slice1 := []person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Charlie", 35},
+	}
+	slice2 := []person{
+		{"Charlie", 35},
+		{"David", 40},
+		{"Alice", 25},
+	}
+	iter1 := itertools.ToIter(slice1)
+	iter2 := itertools.ToIter(slice2)
+
+	intersection := iter1.Intersection(iter2, func(p person) any {
+		return p.Name
+	}).Collect()
+
+	assert.Equal(t, []person{
+		{"Alice", 25},
+		{"Charlie", 35},
+	}, intersection)
+}
