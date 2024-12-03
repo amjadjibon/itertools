@@ -187,3 +187,25 @@ func TestFlatten(t *testing.T) {
 	flatten := itertools.Flatten(chunkList...)
 	assert.Equal(t, slice, flatten.Collect())
 }
+
+func TestCartesianProduct(t *testing.T) {
+	slice1 := []int{1, 2, 3}
+	slice2 := []string{"a", "b", "c"}
+	iter1 := itertools.ToIter(slice1)
+	iter2 := itertools.ToIter(slice2)
+
+	cartesianProduct := itertools.CartesianProduct(iter1, iter2).Collect()
+	expected := []struct {
+		X int
+		Y string
+	}{
+		{1, "a"}, {1, "b"}, {1, "c"},
+		{2, "a"}, {2, "b"}, {2, "c"},
+		{3, "a"}, {3, "b"}, {3, "c"},
+	}
+
+	for i, v := range cartesianProduct {
+		assert.Equal(t, expected[i].X, v.X)
+		assert.Equal(t, expected[i].Y, v.Y)
+	}
+}

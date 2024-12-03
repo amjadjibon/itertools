@@ -183,3 +183,32 @@ func Flatten[V any](its ...*Iterator[V]) *Iterator[V] {
 		},
 	}
 }
+
+// CartesianProduct returns an iterator of all pairs of elements from two iterators
+func CartesianProduct[A, B any](it1 *Iterator[A], it2 *Iterator[B]) *Iterator[struct {
+	X A
+	Y B
+}] {
+	xs := it2.Collect()
+	return &Iterator[struct {
+		X A
+		Y B
+	}]{
+		seq: func(yield func(struct {
+			X A
+			Y B
+		}) bool) {
+			it1.seq(func(a A) bool {
+				for _, b := range xs {
+					if !yield(struct {
+						X A
+						Y B
+					}{X: a, Y: b}) {
+						return false
+					}
+				}
+				return true
+			})
+		},
+	}
+}
