@@ -365,3 +365,16 @@ func (it *Iterator[V]) Cycle() *Iterator[V] {
 		},
 	}
 }
+
+// Repeat returns an Iterator that yields the same element n times
+func Repeat[V any](v V, n int) *Iterator[V] {
+	return &Iterator[V]{
+		seq: func(yield func(V) bool) {
+			for i := 0; i < n; i++ {
+				if !yield(v) {
+					return
+				}
+			}
+		},
+	}
+}

@@ -387,3 +387,11 @@ func TestIterator_Cycle(t *testing.T) {
 
 	assert.Equal(t, []int{1, 2, 3, 1, 2, 3, 1}, cycle)
 }
+
+func TestIterator_Repeat(t *testing.T) {
+	iter := itertools.Repeat(42, 3)
+
+	repeat := iter.Collect()
+
+	assert.Equal(t, []int{42, 42, 42}, repeat)
+}
