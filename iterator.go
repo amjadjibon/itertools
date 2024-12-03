@@ -350,6 +350,7 @@ func (it *Iterator[V]) GroupBy(keyFunc func(V) string) map[string][]V {
 	return groups
 }
 
+// Cycle returns an Iterator that cycles through the elements of the Iterator indefinitely
 func (it *Iterator[V]) Cycle() *Iterator[V] {
 	xs := it.Collect()
 	return &Iterator[V]{
