@@ -405,3 +405,17 @@ func (it *Iterator[V]) Intersection(other *Iterator[V], keyFunc func(V) any) *It
 		return ok
 	})
 }
+
+// Difference returns an Iterator that yields elements that are present in the first iterator but not in the second
+func (it *Iterator[V]) Difference(other *Iterator[V], keyFunc func(V) any) *Iterator[V] {
+	seen := make(map[any]struct{})
+	other.seq(func(v V) bool {
+		seen[keyFunc(v)] = struct{}{}
+		return true
+	})
+
+	return it.Filter(func(v V) bool {
+		_, ok := seen[keyFunc(v)]
+		return !ok
+	})
+}

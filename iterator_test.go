@@ -481,3 +481,44 @@ func TestIterator_Intersection_complex(t *testing.T) {
 		{"Charlie", 35},
 	}, intersection)
 }
+
+func TestIterator_Difference(t *testing.T) {
+	slice1 := []int{1, 2, 3}
+	slice2 := []int{3, 4, 5}
+	iter1 := itertools.ToIter(slice1)
+	iter2 := itertools.ToIter(slice2)
+
+	difference := iter1.Difference(iter2, func(i int) any {
+		return i
+	}).Collect()
+
+	assert.Equal(t, []int{1, 2}, difference)
+}
+
+func TestIterator_Difference_complex(t *testing.T) {
+	type person struct {
+		Name string
+		Age  int
+	}
+
+	slice1 := []person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Charlie", 35},
+	}
+	slice2 := []person{
+		{"Charlie", 35},
+		{"David", 40},
+		{"Alice", 25},
+	}
+	iter1 := itertools.ToIter(slice1)
+	iter2 := itertools.ToIter(slice2)
+
+	difference := iter1.Difference(iter2, func(p person) any {
+		return p.Name
+	}).Collect()
+
+	assert.Equal(t, []person{
+		{"Bob", 30},
+	}, difference)
+}
