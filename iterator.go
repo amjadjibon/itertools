@@ -378,3 +378,16 @@ func Repeat[V any](v V, n int) *Iterator[V] {
 		},
 	}
 }
+
+// Union returns an Iterator that yields elements from both iterators without duplicates
+func (it *Iterator[V]) Union(other *Iterator[V], keyFunc func(V) any) *Iterator[V] {
+	seen := make(map[any]struct{})
+	return it.Chain(other).Filter(func(v V) bool {
+		key := keyFunc(v)
+		if _, ok := seen[key]; ok {
+			return false
+		}
+		seen[key] = struct{}{}
+		return true
+	})
+}
