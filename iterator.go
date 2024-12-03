@@ -228,15 +228,15 @@ func (it *Iterator[V]) All(predicate func(V) bool) bool {
 
 // Any returns true if any element in the Iterator satisfies the predicate
 func (it *Iterator[V]) Any(predicate func(V) bool) bool {
-	any := false
+	anyFlag := false
 	it.seq(func(v V) bool {
 		if predicate(v) {
-			any = true
+			anyFlag = true
 			return false
 		}
 		return true
 	})
-	return any
+	return anyFlag
 }
 
 // Find returns the first element that satisfies the predicate

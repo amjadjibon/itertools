@@ -1,0 +1,20 @@
+linters:
+  disable-all: true
+  enable:
+    - durationcheck
+    - gocritic
+    - gofumpt
+    - goimports
+    - gomodguard
+    - govet
+    - ineffassign
+    - misspell
+    - revive
+    - staticcheck
+    - tenv
+    - typecheck
+    - unconvert
+    - unused
+linters-settings:
+  gofumpt:
+    simplify: true

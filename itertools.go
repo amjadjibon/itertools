@@ -18,7 +18,8 @@ func Zip[A, B any](it1 *Iterator[A], it2 *Iterator[B]) *Iterator[struct {
 		seq: func(yield func(struct {
 			First  A
 			Second B
-		}) bool) {
+		}) bool,
+		) {
 			ch1 := make(chan A)
 			ch2 := make(chan B)
 			go func() { it1.seq(func(v A) bool { ch1 <- v; return true }); close(ch1) }()
@@ -41,7 +42,7 @@ func Zip[A, B any](it1 *Iterator[A], it2 *Iterator[B]) *Iterator[struct {
 
 // Zip2 combines two iterators element-wise into a single iterator of pairs.
 // If one iterator is longer than the other, the shorter iterator is extended with the fill value.
-func Zip2[A, B any](it1 *Iterator[A], it2 *Iterator[B], fill struct {
+func Zip2[A, B any](it1 *Iterator[A], it2 *Iterator[B], _ struct {
 	First  A
 	Second B
 }) *Iterator[struct {
@@ -55,7 +56,8 @@ func Zip2[A, B any](it1 *Iterator[A], it2 *Iterator[B], fill struct {
 		seq: func(yield func(struct {
 			First  A
 			Second B
-		}) bool) {
+		}) bool,
+		) {
 			ch1 := make(chan A)
 			ch2 := make(chan B)
 			go func() { it1.seq(func(v A) bool { ch1 <- v; return true }); close(ch1) }()

@@ -180,11 +180,11 @@ func TestIterator_Any(t *testing.T) {
 	slice := []int{1, 2, 3, 4, 5}
 	iter := itertools.ToIter(slice)
 
-	any := iter.Any(func(v int) bool {
+	anyResult := iter.Any(func(v int) bool {
 		return v == 3
 	})
 
-	assert.True(t, any)
+	assert.True(t, anyResult)
 }
 
 func TestIterator_All(t *testing.T) {
