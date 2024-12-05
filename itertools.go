@@ -197,7 +197,8 @@ func CartesianProduct[A, B any](it1 *Iterator[A], it2 *Iterator[B]) *Iterator[st
 		seq: func(yield func(struct {
 			X A
 			Y B
-		}) bool) {
+		}) bool,
+		) {
 			it1.seq(func(a A) bool {
 				for _, b := range xs {
 					if !yield(struct {
