@@ -470,3 +470,14 @@ func (it *Iterator[V]) Index(predicate func(V) bool) int {
 	}
 	return -1
 }
+
+// IsSorted returns true if the elements in the Iterator are sorted in ascending order
+func (it *Iterator[V]) IsSorted(less func(a, b V) bool) bool {
+	prev := it.First()
+	return it.All(func(v V) bool {
+		defer func() {
+			prev = v
+		}()
+		return !less(v, prev)
+	})
+}
