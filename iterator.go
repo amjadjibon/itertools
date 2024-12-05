@@ -452,3 +452,21 @@ func (it *Iterator[V]) Shuffle() *Iterator[V] {
 		},
 	}
 }
+
+// Index returns the index of the first element that satisfies the predicate
+func (it *Iterator[V]) Index(predicate func(V) bool) int {
+	index := 0
+	found := false
+	it.seq(func(v V) bool {
+		if predicate(v) {
+			found = true
+			return false
+		}
+		index++
+		return true
+	})
+	if found {
+		return index
+	}
+	return -1
+}

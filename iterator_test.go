@@ -542,3 +542,45 @@ func TestIterator_Shuffle(t *testing.T) {
 	assert.ElementsMatch(t, slice, once)
 	assert.NotEqual(t, slice, once)
 }
+
+func TestIterator_Index(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	index := iter.Index(func(v int) bool {
+		return v == 3
+	})
+
+	assert.Equal(t, 2, index)
+}
+
+func TestIterator_Index_NotFound(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	index := iter.Index(func(v int) bool {
+		return v == 6
+	})
+
+	assert.Equal(t, -1, index)
+}
+
+func TestIterator_Index_Complex(t *testing.T) {
+	type person struct {
+		Name string
+		Age  int
+	}
+
+	slice := []person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Charlie", 35},
+	}
+	iter := itertools.ToIter(slice)
+
+	index := iter.Index(func(p person) bool {
+		return p.Name == "Bob"
+	})
+
+	assert.Equal(t, 1, index)
+}
