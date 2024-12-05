@@ -2,6 +2,7 @@ package itertools
 
 import (
 	"iter"
+	"math/rand/v2"
 	"sort"
 )
 
@@ -434,6 +435,20 @@ func (it *Iterator[V]) StepBy(n int) *Iterator[V] {
 				i++
 				return true
 			})
+		},
+	}
+}
+
+// Shuffle returns an Iterator that yields elements in a random order
+func (it *Iterator[V]) Shuffle() *Iterator[V] {
+	xs := it.Collect()
+	return &Iterator[V]{
+		seq: func(yield func(V) bool) {
+			for _, i := range rand.Perm(len(xs)) {
+				if !yield(xs[i]) {
+					return
+				}
+			}
 		},
 	}
 }

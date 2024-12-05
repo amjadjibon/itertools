@@ -531,3 +531,14 @@ func TestIterator_StepBy(t *testing.T) {
 
 	assert.Equal(t, []int{1, 4, 7}, stepBy)
 }
+
+func TestIterator_Shuffle(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	shuffled := iter.Shuffle()
+
+	once := shuffled.Collect()
+	assert.ElementsMatch(t, slice, once)
+	assert.NotEqual(t, slice, once)
+}
