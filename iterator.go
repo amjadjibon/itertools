@@ -419,3 +419,21 @@ func (it *Iterator[V]) Difference(other *Iterator[V], keyFunc func(V) any) *Iter
 		return !ok
 	})
 }
+
+// StepBy returns an Iterator that yields every nth element
+func (it *Iterator[V]) StepBy(n int) *Iterator[V] {
+	return &Iterator[V]{
+		seq: func(yield func(V) bool) {
+			i := 0
+			it.seq(func(v V) bool {
+				if i%n == 0 {
+					if !yield(v) {
+						return false
+					}
+				}
+				i++
+				return true
+			})
+		},
+	}
+}

@@ -522,3 +522,12 @@ func TestIterator_Difference_complex(t *testing.T) {
 		{"Bob", 30},
 	}, difference)
 }
+
+func TestIterator_StepBy(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
+	iter := itertools.ToIter(slice)
+
+	stepBy := iter.StepBy(3).Collect()
+
+	assert.Equal(t, []int{1, 4, 7}, stepBy)
+}
