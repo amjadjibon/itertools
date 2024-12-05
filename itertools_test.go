@@ -209,3 +209,13 @@ func TestCartesianProduct(t *testing.T) {
 		assert.Equal(t, expected[i].Y, v.Y)
 	}
 }
+
+func TestCartesianProductEmpty(t *testing.T) {
+	slice1 := []int{}
+	slice2 := []string{}
+	iter1 := itertools.ToIter(slice1)
+	iter2 := itertools.ToIter(slice2)
+
+	cartesianProduct := itertools.CartesianProduct(iter1, iter2).Collect()
+	assert.Empty(t, cartesianProduct)
+}
