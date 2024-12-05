@@ -471,6 +471,20 @@ func (it *Iterator[V]) Index(predicate func(V) bool) int {
 	return -1
 }
 
+// LastIndex returns the index of the last element that satisfies the predicate
+func (it *Iterator[V]) LastIndex(predicate func(V) bool) int {
+	index := -1
+	i := 0
+	it.seq(func(v V) bool {
+		if predicate(v) {
+			index = i
+		}
+		i++
+		return true
+	})
+	return index
+}
+
 // IsSorted returns true if the elements in the Iterator are sorted in ascending order
 func (it *Iterator[V]) IsSorted(less func(a, b V) bool) bool {
 	prev := it.First()

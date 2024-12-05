@@ -585,6 +585,17 @@ func TestIterator_Index_Complex(t *testing.T) {
 	assert.Equal(t, 1, index)
 }
 
+func TestIterator_LastIndex(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5, 3}
+	iter := itertools.ToIter(slice)
+
+	index := iter.LastIndex(func(v int) bool {
+		return v == 3
+	})
+
+	assert.Equal(t, 5, index)
+}
+
 func TestIterator_IsSorted(t *testing.T) {
 	slice := []int{1, 2, 3, 4, 5}
 	iter := itertools.ToIter(slice)
