@@ -634,3 +634,61 @@ func TestIterator_ReplaceAll(t *testing.T) {
 
 	assert.Equal(t, []int{0, 0, 0, 0, 0}, replaced)
 }
+
+func TestIterator_Compact(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5, 0, 6, 0, 7}
+	iter := itertools.ToIter(slice)
+
+	compacted := iter.Compact().Collect()
+
+	assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7}, compacted)
+}
+
+func TestIterator_Compact_complex(t *testing.T) {
+	type person struct {
+		Name string
+		Age  int
+	}
+
+	slice := []*person{
+		{"Alice", 25},
+		nil,
+		{"Charlie", 35},
+	}
+	iter := itertools.ToIter(slice)
+
+	compacted := iter.Compact().Collect()
+
+	assert.Equal(t, []*person{
+		{"Alice", 25},
+		{"Charlie", 35},
+	}, compacted)
+}
+func TestIterator_CompactWith(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5, 0, 6, 0, 7}
+	iter := itertools.ToIter(slice)
+
+	compacted := iter.CompactWith(0).Collect()
+
+	assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7}, compacted)
+}
+func TestIterator_CompactWith_complex(t *testing.T) {
+	type person struct {
+		Name string
+		Age  int
+	}
+
+	slice := []*person{
+		{"Alice", 25},
+		{Name: "", Age: 0},
+		{"Charlie", 35},
+	}
+	iter := itertools.ToIter(slice)
+
+	compacted := iter.CompactWith(&person{}).Collect()
+
+	assert.Equal(t, []*person{
+		{"Alice", 25},
+		{"Charlie", 35},
+	}, compacted)
+}

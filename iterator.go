@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"iter"
 	"math/rand/v2"
+	"reflect"
 	"sort"
 )
 
@@ -515,4 +516,14 @@ func (it *Iterator[V]) Replace(predicate func(V) bool, replacement V) *Iterator[
 // ReplaceAll replaces all elements with the replacement
 func (it *Iterator[V]) ReplaceAll(replacement V) *Iterator[V] {
 	return it.Replace(func(V) bool { return true }, replacement)
+}
+
+// Compact removes the nil elements from the Iterator
+func (it *Iterator[V]) Compact() *Iterator[V] {
+	return it.Filter(func(v V) bool { return !reflect.ValueOf(v).IsZero() })
+}
+
+// CompactWith removes the elements that are equal to the zero value of the type
+func (it *Iterator[V]) CompactWith(zero V) *Iterator[V] {
+	return it.Filter(func(v V) bool { return !reflect.DeepEqual(v, zero) })
 }
