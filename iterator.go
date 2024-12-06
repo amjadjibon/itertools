@@ -1,6 +1,7 @@
 package itertools
 
 import (
+	"fmt"
 	"iter"
 	"math/rand/v2"
 	"sort"
@@ -494,4 +495,9 @@ func (it *Iterator[V]) IsSorted(less func(a, b V) bool) bool {
 		}()
 		return !less(v, prev)
 	})
+}
+
+// String returns a string representation of the Iterator
+func (it *Iterator[V]) String() string {
+	return fmt.Sprintf("<Iterator: %v>", it.Collect())
 }

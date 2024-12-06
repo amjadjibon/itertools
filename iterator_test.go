@@ -1,6 +1,7 @@
 package itertools_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/amjadjibon/itertools"
@@ -605,4 +606,13 @@ func TestIterator_IsSorted(t *testing.T) {
 	})
 
 	assert.True(t, sorted)
+}
+
+func TestIterator_String(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	str := iter.String()
+
+	assert.Equal(t, fmt.Sprintf("<Iterator: %v>", slice), str)
 }
