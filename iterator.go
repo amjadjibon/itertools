@@ -501,3 +501,13 @@ func (it *Iterator[V]) IsSorted(less func(a, b V) bool) bool {
 func (it *Iterator[V]) String() string {
 	return fmt.Sprintf("<Iterator: %v>", it.Collect())
 }
+
+// Replace replaces all elements that satisfy the predicate with the replacement
+func (it *Iterator[V]) Replace(predicate func(V) bool, replacement V) *Iterator[V] {
+	return it.Map(func(v V) V {
+		if predicate(v) {
+			return replacement
+		}
+		return v
+	})
+}

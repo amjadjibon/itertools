@@ -616,3 +616,12 @@ func TestIterator_String(t *testing.T) {
 
 	assert.Equal(t, fmt.Sprintf("<Iterator: %v>", slice), str)
 }
+
+func TestIterator_Replace(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	replaced := iter.Replace(func(v int) bool { return v%2 == 0 }, 0).Collect()
+
+	assert.Equal(t, []int{1, 0, 3, 0, 5}, replaced)
+}
