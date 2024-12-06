@@ -625,3 +625,12 @@ func TestIterator_Replace(t *testing.T) {
 
 	assert.Equal(t, []int{1, 0, 3, 0, 5}, replaced)
 }
+
+func TestIterator_ReplaceAll(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	replaced := iter.ReplaceAll(0).Collect()
+
+	assert.Equal(t, []int{0, 0, 0, 0, 0}, replaced)
+}

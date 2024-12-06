@@ -511,3 +511,8 @@ func (it *Iterator[V]) Replace(predicate func(V) bool, replacement V) *Iterator[
 		return v
 	})
 }
+
+// ReplaceAll replaces all elements with the replacement
+func (it *Iterator[V]) ReplaceAll(replacement V) *Iterator[V] {
+	return it.Replace(func(V) bool { return true }, replacement)
+}
