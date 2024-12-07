@@ -6,6 +6,19 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
+// NewIterator creates a new iterator from a sequence function
+func NewIterator[V any](v ...V) *Iterator[V] {
+	return &Iterator[V]{
+		seq: func(yield func(V) bool) {
+			for _, v := range v {
+				if !yield(v) {
+					return
+				}
+			}
+		},
+	}
+}
+
 // Zip combines two iterators element-wise into a single iterator of pairs.
 func Zip[A, B any](it1 *Iterator[A], it2 *Iterator[B]) *Iterator[struct {
 	First  A

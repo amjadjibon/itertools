@@ -8,6 +8,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewIterator(t *testing.T) {
+	iter1 := itertools.NewIterator(1, 2, 3, 4, 5)
+	collected1 := iter1.Collect()
+
+	assert.Equal(t, 5, len(collected1))
+	assert.Equal(t, []int{1, 2, 3, 4, 5}, collected1)
+
+	iter2 := itertools.NewIterator("a", "b", "c", "d", "e")
+	collected2 := iter2.Collect()
+
+	assert.Equal(t, 5, len(collected2))
+	assert.Equal(t, []string{"a", "b", "c", "d", "e"}, collected2)
+}
+
 func TestZip(t *testing.T) {
 	slice1 := []int{1, 2, 3, 4, 5, 6}
 	slice2 := []string{"a", "b", "c", "d", "e"}
