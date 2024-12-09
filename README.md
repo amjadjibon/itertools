@@ -1,197 +1,208 @@
-# `itertools`
+# **Iterator Library for Go**
 
-`itertools` is a lightweight, generic Go library that provides powerful and reusable iterator utilities. It allows you to iterate over sequences, apply transformations, filter data, and compose operations in a functional programming style.
-
----
-
-## Features
-
-- **Generic Iterators**: Iterate over any type of sequence.
-- **Transformations**: Map, filter, and chain iterators.
-- **Collection Utilities**: Collect elements into slices, apply functions to each element, and more.
-- **Control Operations**: Take or drop elements based on conditions or counts.
-- **Reversals**: Iterate over sequences in reverse order.
+This library provides a powerful and flexible **generic iterator system** for Go. It enables functional-style iteration, transformation, and aggregation of collections. It is inspired by the iterator protocols found in Python and Rust.
 
 ---
 
-## Installation
+## **Table of Contents**
+1. [Installation](#installation)
+2. [Usage](#usage)
+3. [Features](#features)
+4. [API Reference](#api-reference)
+    - [Creating an Iterator](#creating-an-iterator)
+    - [Iterator Methods](#iterator-methods)
+    - [Utility Functions](#utility-functions)
+5. [Examples](#examples)
+6. [Contributing](#contributing)
+7. [License](#license)
 
-To use `itertools` in your Go project, simply install the library:
+---
 
-```bash
-go get github.com/amjadjibon/itertools
+## **Installation**
+
+```sh
+go get -u github.com/amjadjibon/itertools
 ```
 
 ---
 
-## Usage
+## **Usage**
 
-### Create an Iterator
-
-You can create an iterator from a slice using `ToIter`:
+Here's a simple example to get you started.
 
 ```go
 package main
 
 import (
-	"fmt"
-    
-	"github.com/amjadjibon/itertools"
+    "fmt"
+    "github.com/amjadjibon/itertools"
 )
 
 func main() {
-	data := []int{1, 2, 3, 4, 5}
-	iter := itertools.ToIter(data)
+    // Create an iterator from a slice
+    iter := itertools.ToIter([]int{1, 2, 3, 4, 5})
 
-	for iter.Next() {
-		fmt.Println(iter.Current())
-	}
+    // Filter even numbers, map them to their squares, and collect the result
+    result := iter.Filter(func(x int) bool { return x%2 == 0 }).
+        Map(func(x int) int { return x * x }).
+        Collect()
+
+    fmt.Println(result) // Output: [4, 16]
 }
 ```
 
-### Transformations
+---
 
-#### Map
+## **Features**
+- **Chainable API**: Combine transformations like `Filter`, `Map`, `Take`, and `Drop` into one functional-style chain.
+- **Laziness**: Iterators are lazy; they only compute elements as needed.
+- **Composable**: Supports operations like `Zip`, `Chain`, `Union`, `Intersection`, `Difference`, and `Flatten`.
+- **Collection Methods**: Collect items into slices, count them, partition them, and more.
+- **Generalized Iterators**: Supports all types, as it uses Go's generics.
+- **Multiple Data Transformations**: Sort, shuffle, reverse, compact, and manipulate iterator contents.
 
-Apply a function to each element of the iterator:
+---
+
+## **API Reference**
+
+### **Creating an Iterator**
+
+1. **From Slice**
+    ```go
+    iter := itertools.ToIter([]int{1, 2, 3, 4})
+    ```
+
+2. **Custom Sequences**
+    ```go
+    iter := itertools.NewIterator(1, 2, 3, 4)
+    ```
+
+3. **Repeated Values**
+    ```go
+    iter := itertools.Repeat(42, 5)
+    ```
+
+4. **Cycle**
+    ```go
+    iter := itertools.NewIterator(1, 2, 3).Cycle()
+    ```
+
+---
+
+### **Iterator Methods**
+
+These methods modify or operate on the elements of an iterator.
+
+| **Method**       | **Description**                                             |
+|------------------|------------------------------------------------------------|
+| `Next()`         | Advances the iterator to the next element.                   |
+| `Current()`      | Returns the current element.                                 |
+| `Collect()`      | Collects all elements into a slice.                          |
+| `Each(f func(V))`| Applies `f` to each element.                                 |
+| `Filter(f func(V) bool)` | Yields only elements that satisfy the predicate `f`.|
+| `Map(f func(V) V)` | Transforms each element using `f`.                         |
+| `Reverse()`      | Iterates over elements in reverse order.                     |
+| `Take(n int)`    | Takes the first `n` elements.                                |
+| `Drop(n int)`    | Skips the first `n` elements.                                |
+| `TakeWhile(f func(V) bool)` | Yields elements while the predicate `f` is true.|
+| `DropWhile(f func(V) bool)` | Drops elements while the predicate `f` is true.  |
+| `Count()`        | Counts the total number of elements.                         |
+| `First()`        | Returns the first element.                                   |
+| `Last()`         | Returns the last element.                                    |
+| `Nth(n int)`     | Returns the nth element.                                     |
+| `Sort(less func(a, b V) bool)` | Sorts elements according to `less`.          |
+| `Min(less func(a, b V) bool)` | Returns the minimum element.                   |
+| `Max(less func(a, b V) bool)` | Returns the maximum element.                   |
+| `Any(f func(V) bool)` | Returns true if any element satisfies `f`.             |
+| `All(f func(V) bool)` | Returns true if all elements satisfy `f`.              |
+| `Find(f func(V) bool)` | Returns the first element that satisfies `f`.         |
+| `Index(f func(V) bool)` | Returns the index of the first element that satisfies `f`. |
+| `LastIndex(f func(V) bool)` | Returns the index of the last element that satisfies `f`. |
+| `IsSorted(less func(a, b V) bool)` | Returns true if the elements are sorted.  |
+| `Replace(f func(V) bool, replacement V)` | Replaces elements that satisfy `f`.|
+| `Compact()`      | Removes nil/zero-value elements.                             |
+| `Union(other *Iterator, keyFunc func(V) any)` | Merges two iterators without duplicates.|
+| `Difference(other *Iterator, keyFunc func(V) any)` | Difference of two iterators.|
+| `Intersection(other *Iterator, keyFunc func(V) any)` | Intersection of two iterators.|
+
+---
+
+### **Utility Functions**
+
+| **Function**      | **Description**                                             |
+|-------------------|------------------------------------------------------------|
+| `Zip(it1, it2)`   | Zips two iterators together.                                 |
+| `Zip2(it1, it2, fill)` | Zips two iterators, filling extra elements with `fill`.|
+| `Fold(it, transform, initial)` | Reduces the elements using `transform`.       |
+| `Sum(it, transform, zero)` | Sums the elements.                                 |
+| `Product(it, transform, one)` | Computes the product of elements.             |
+| `ChunkSlice(it, size)` | Returns slices of `size`.                              |
+| `Flatten(it1, it2, ...)` | Flattens multiple iterators into one.                |
+| `CartesianProduct(it1, it2)` | Generates Cartesian product of two iterators.  |
+
+---
+
+## **Examples**
+
+### **Basic Usage**
 
 ```go
-mapped := iter.Map(func(v int) int {
-	return v * 2
-})
-fmt.Println(mapped.Collect()) // [2, 4, 6, 8, 10]
+// Create an iterator from a slice
+iter := itertools.ToIter([]int{1, 2, 3, 4})
+
+// Filter and Map
+result := iter.Filter(func(x int) bool { return x%2 == 0 }).
+    Map(func(x int) int { return x * 2 }).
+    Collect()
+
+fmt.Println(result) // Output: [4, 8]
 ```
 
-#### Filter
-
-Filter elements based on a predicate:
+### **Sort Elements**
 
 ```go
-filtered := iter.Filter(func(v int) bool {
-	return v%2 == 0
-})
-fmt.Println(filtered.Collect()) // [2, 4]
+iter := itertools.ToIter([]int{3, 1, 4, 2})
+sorted := iter.Sort(func(a, b int) bool { return a < b }).Collect()
+fmt.Println(sorted) // Output: [1, 2, 3, 4]
 ```
 
-#### Reverse
-
-Reverse the sequence:
+### **Zip Two Iterators**
 
 ```go
-reversed := iter.Reverse()
-fmt.Println(reversed.Collect()) // [5, 4, 3, 2, 1]
+iter1 := itertools.ToIter([]int{1, 2, 3})
+iter2 := itertools.ToIter([]string{"a", "b", "c"})
+
+zipped := itertools.Zip(iter1, iter2).Collect()
+fmt.Println(zipped) 
+// Output: [{1 a} {2 b} {3 c}]
 ```
 
-### Control Operations
-
-#### Take
-
-Take the first `n` elements:
+### **Generate Cartesian Product**
 
 ```go
-taken := iter.Take(3)
-fmt.Println(taken.Collect()) // [1, 2, 3]
-```
+iter1 := itertools.ToIter([]int{1, 2})
+iter2 := itertools.ToIter([]string{"a", "b"})
 
-#### Drop
-
-Skip the first `n` elements:
-
-```go
-dropped := iter.Drop(3)
-fmt.Println(dropped.Collect()) // [4, 5]
-```
-
-#### TakeWhile
-
-Take elements while a predicate is true:
-
-```go
-takeWhile := iter.TakeWhile(func(v int) bool {
-	return v < 4
-})
-fmt.Println(takeWhile.Collect()) // [1, 2, 3]
-```
-
-#### DropWhile
-
-Skip elements while a predicate is true:
-
-```go
-dropWhile := iter.DropWhile(func(v int) bool {
-	return v < 4
-})
-fmt.Println(dropWhile.Collect()) // [4, 5]
-```
-
-### Combining Iterators
-
-#### Chain
-
-Concatenate two iterators:
-
-```go
-otherData := []int{6, 7, 8}
-otherIter := itertools.ToIter(otherData)
-
-chained := iter.Chain(otherIter)
-fmt.Println(chained.Collect()) // [1, 2, 3, 4, 5, 6, 7, 8]
+cartesian := itertools.CartesianProduct(iter1, iter2).Collect()
+fmt.Println(cartesian)
+// Output: [{X: 1, Y: "a"} {X: 1, Y: "b"} {X: 2, Y: "a"} {X: 2, Y: "b"}]
 ```
 
 ---
 
-## API Reference
+## **Contributing**
 
-### Methods
-
-#### `Next() bool`
-Advances the iterator to the next element. Returns `true` if an element is available.
-
-#### `Current() V`
-Returns the current element. Panics if the iterator has not started or is done.
-
-#### `Collect() []V`
-Collects all elements from the iterator into a slice.
-
-#### `Each(f func(V))`
-Applies a function to each element of the iterator.
-
-#### `Reverse() *Iterator[V]`
-Returns an iterator that iterates over elements in reverse order.
-
-#### `Filter(predicate func(V) bool) *Iterator[V]`
-Yields only elements that satisfy the predicate.
-
-#### `Map(f func(V) V) *Iterator[V]`
-Transforms each element using the provided function.
-
-#### `Chain(other *Iterator[V]) *Iterator[V]`
-Concatenates two iterators.
-
-#### `Take(n int) *Iterator[V]`
-Yields the first `n` elements.
-
-#### `Drop(n int) *Iterator[V]`
-Skips the first `n` elements.
-
-#### `TakeWhile(predicate func(V) bool) *Iterator[V]`
-Yields elements while the predicate is true.
-
-#### `DropWhile(predicate func(V) bool) *Iterator[V]`
-Skips elements while the predicate is true.
+Contributions are welcome! To get started:
+1. Fork the repository.
+2. Create a new branch for your feature/bugfix.
+3. Submit a pull request.
 
 ---
 
-## Contributing
+## **License**
 
-Contributions are welcome! Feel free to submit issues or pull requests.
-
----
-
-## License
-
-This library is open-source and available under the [MIT License](LICENSE).
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
 ---
 
-Happy iterating! 🎉
+With this library, you can process collections in a functional, chainable, and lazy manner. From filtering and mapping to complex operations like cartesian products, this iterator system brings the power of iterables to Go. Happy iterating! 🎉
