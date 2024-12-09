@@ -664,6 +664,7 @@ func TestIterator_Compact_complex(t *testing.T) {
 		{"Charlie", 35},
 	}, compacted)
 }
+
 func TestIterator_CompactWith(t *testing.T) {
 	slice := []int{1, 2, 3, 4, 5, 0, 6, 0, 7}
 	iter := itertools.ToIter(slice)
@@ -672,6 +673,7 @@ func TestIterator_CompactWith(t *testing.T) {
 
 	assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7}, compacted)
 }
+
 func TestIterator_CompactWith_complex(t *testing.T) {
 	type person struct {
 		Name string
