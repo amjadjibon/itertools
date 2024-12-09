@@ -539,3 +539,14 @@ func (it *Iterator[V]) ToUpper() *Iterator[V] {
 		return v
 	})
 }
+
+// ToLower converts all elements to lowercase if they are strings
+// and if not, it leaves them unchanged in the Iterator
+func (it *Iterator[V]) ToLower() *Iterator[V] {
+	return it.Map(func(v V) V {
+		if str, ok := any(v).(string); ok {
+			return any(strings.ToLower(str)).(V)
+		}
+		return v
+	})
+}

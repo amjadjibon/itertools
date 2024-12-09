@@ -709,3 +709,18 @@ func TestIterator_ToUpper(t *testing.T) {
 
 	assert.Equal(t, []int{1, 2, 3}, upper2)
 }
+
+func TestIterator_ToLower(t *testing.T) {
+	slice := []string{"HELLO", "WORLD"}
+	iter := itertools.ToIter(slice)
+
+	lower := iter.ToLower().Collect()
+
+	assert.Equal(t, []string{"hello", "world"}, lower)
+
+	slice2 := []int{1, 2, 3}
+	iter2 := itertools.ToIter(slice2)
+	lower2 := iter2.ToLower().Collect()
+
+	assert.Equal(t, []int{1, 2, 3}, lower2)
+}
