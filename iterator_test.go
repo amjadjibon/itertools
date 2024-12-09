@@ -724,3 +724,12 @@ func TestIterator_ToLower(t *testing.T) {
 
 	assert.Equal(t, []int{1, 2, 3}, lower2)
 }
+
+func TestIterator_TrimSpace(t *testing.T) {
+	slice := []string{"  hello  ", "world  "}
+	iter := itertools.ToIter(slice)
+
+	trimmed := iter.TrimSpace().Collect()
+
+	assert.Equal(t, []string{"hello", "world"}, trimmed)
+}

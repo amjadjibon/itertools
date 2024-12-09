@@ -550,3 +550,14 @@ func (it *Iterator[V]) ToLower() *Iterator[V] {
 		return v
 	})
 }
+
+// TrimSpace trims the whitespace from all elements if they are strings
+// and if not, it leaves them unchanged in the Iterator
+func (it *Iterator[V]) TrimSpace() *Iterator[V] {
+	return it.Map(func(v V) V {
+		if str, ok := any(v).(string); ok {
+			return any(strings.TrimSpace(str)).(V)
+		}
+		return v
+	})
+}
