@@ -694,3 +694,18 @@ func TestIterator_CompactWith_complex(t *testing.T) {
 		{"Charlie", 35},
 	}, compacted)
 }
+
+func TestIterator_ToUpper(t *testing.T) {
+	slice := []string{"hello", "world"}
+	iter := itertools.ToIter(slice)
+
+	upper := iter.ToUpper().Collect()
+
+	assert.Equal(t, []string{"HELLO", "WORLD"}, upper)
+
+	slice2 := []int{1, 2, 3}
+	iter2 := itertools.ToIter(slice2)
+	upper2 := iter2.ToUpper().Collect()
+
+	assert.Equal(t, []int{1, 2, 3}, upper2)
+}

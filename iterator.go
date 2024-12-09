@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 	"reflect"
 	"sort"
+	"strings"
 )
 
 // Iterator is a generic iterator that can be used
@@ -526,4 +527,15 @@ func (it *Iterator[V]) Compact() *Iterator[V] {
 // CompactWith removes the elements that are equal to the zero value of the type
 func (it *Iterator[V]) CompactWith(zero V) *Iterator[V] {
 	return it.Filter(func(v V) bool { return !reflect.DeepEqual(v, zero) })
+}
+
+// ToUpper converts all elements to uppercase if they are strings
+// and if not, it leaves them unchanged in the Iterator
+func (it *Iterator[V]) ToUpper() *Iterator[V] {
+	return it.Map(func(v V) V {
+		if str, ok := any(v).(string); ok {
+			return any(strings.ToUpper(str)).(V)
+		}
+		return v
+	})
 }
