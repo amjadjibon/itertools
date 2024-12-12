@@ -733,3 +733,35 @@ func TestIterator_TrimSpace(t *testing.T) {
 
 	assert.Equal(t, []string{"hello", "world"}, trimmed)
 }
+
+// AssertEq is a helper function to compare two slices of any type.
+func TestIterator_AssertEq(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	iter := itertools.ToIter(slice)
+
+	res := iter.AssertEq(slice, func(i1, i2 int) bool {
+		return i1 == i2
+	})
+
+	assert.True(t, res)
+}
+
+func TestIterator_AssertEq_complex(t *testing.T) {
+	type person struct {
+		Name string
+		Age  int
+	}
+
+	slice := []person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Charlie", 35},
+	}
+	iter := itertools.ToIter(slice)
+
+	res := iter.AssertEq(slice, func(p1, p2 person) bool {
+		return p1.Name == p2.Name && p1.Age == p2.Age
+	})
+
+	assert.True(t, res)
+}

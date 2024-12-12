@@ -561,3 +561,17 @@ func (it *Iterator[V]) TrimSpace() *Iterator[V] {
 		return v
 	})
 }
+
+// AssertEq asserts that the elements in the Iterator are equal to the expected elements
+func (it *Iterator[V]) AssertEq(expected []V, predicate func(V, V) bool) bool {
+	actual := it.Collect()
+	if len(actual) != len(expected) {
+		return false
+	}
+	for i, v := range actual {
+		if !predicate(v, expected[i]) {
+			return false
+		}
+	}
+	return true
+}
