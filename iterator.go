@@ -271,34 +271,34 @@ func (it *Iterator[V]) Sort(less func(a, b V) bool) *Iterator[V] {
 
 // Min returns the minimum element in the Iterator using the provided less function
 func (it *Iterator[V]) Min(less func(a, b V) bool) (V, bool) {
-	var min V
+	var minValue V
 	var found bool
 
 	it.seq(func(v V) bool {
-		if !found || less(v, min) {
-			min = v
+		if !found || less(v, minValue) {
+			minValue = v
 			found = true
 		}
 		return true
 	})
 
-	return min, found
+	return minValue, found
 }
 
 // Max returns the maximum element in the Iterator using the provided less function
 func (it *Iterator[V]) Max(less func(a, b V) bool) (V, bool) {
-	var max V
+	var maxValue V
 	var found bool
 
 	it.seq(func(v V) bool {
-		if !found || less(max, v) {
-			max = v
+		if !found || less(maxValue, v) {
+			maxValue = v
 			found = true
 		}
 		return true
 	})
 
-	return max, found
+	return maxValue, found
 }
 
 // Partition returns two Iterators, one with elements that satisfy the predicate and one with elements that don't

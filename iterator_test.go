@@ -238,48 +238,48 @@ func TestIterator_Min(t *testing.T) {
 	slice := []int{5, 2, 4, 1, 3}
 	iter := itertools.ToIter(slice)
 
-	min, found := iter.Min(func(a, b int) bool {
+	minValue, found := iter.Min(func(a, b int) bool {
 		return a < b
 	})
 
 	assert.True(t, found)
-	assert.Equal(t, 1, min)
+	assert.Equal(t, 1, minValue)
 }
 
 func TestIterator_Min_Empty(t *testing.T) {
 	slice := []int{}
 	iter := itertools.ToIter(slice)
 
-	min, found := iter.Min(func(a, b int) bool {
+	minValue, found := iter.Min(func(a, b int) bool {
 		return a < b
 	})
 
 	assert.False(t, found)
-	assert.Equal(t, 0, min)
+	assert.Equal(t, 0, minValue)
 }
 
 func TestIterator_Max(t *testing.T) {
 	slice := []int{5, 2, 4, 1, 3}
 	iter := itertools.ToIter(slice)
 
-	max, found := iter.Max(func(a, b int) bool {
+	maxValue, found := iter.Max(func(a, b int) bool {
 		return a < b
 	})
 
 	assert.True(t, found)
-	assert.Equal(t, 5, max)
+	assert.Equal(t, 5, maxValue)
 }
 
 func TestIterator_Max_Empty(t *testing.T) {
 	slice := []int{}
 	iter := itertools.ToIter(slice)
 
-	max, found := iter.Max(func(a, b int) bool {
+	maxValue, found := iter.Max(func(a, b int) bool {
 		return a < b
 	})
 
 	assert.False(t, found)
-	assert.Equal(t, 0, max)
+	assert.Equal(t, 0, maxValue)
 }
 
 func TestIterator_Partition(t *testing.T) {
