@@ -1,10 +1,10 @@
 module github.com/amjadjibon/itertools
 
-go 1.23
+go 1.24.0
 
 require (
-	github.com/stretchr/testify v1.10.0
-	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
+	github.com/stretchr/testify v1.11.1
+	golang.org/x/exp v0.0.0-20250911091902-df9299821621
 )
 
 require (
