@@ -765,3 +765,235 @@ func TestIterator_AssertEq_complex(t *testing.T) {
 
 	assert.True(t, res)
 }
+
+// TestChainEarlyTermination tests that Chain stops the second iterator when yield returns false
+func TestChainEarlyTermination(t *testing.T) {
+	first := itertools.ToIter([]int{1, 2, 3})
+	second := itertools.ToIter([]int{4, 5, 6})
+
+	chained := first.Chain(second)
+
+	// Take only 2 elements - should stop before reaching second iterator
+	result := chained.Take(2).Collect()
+
+	expected := []int{1, 2}
+	if len(result) != len(expected) {
+		t.Errorf("Expected length %d, got %d", len(expected), len(result))
+	}
+
+	for i, v := range expected {
+		if result[i] != v {
+			t.Errorf("Expected %d at index %d, got %d", v, i, result[i])
+		}
+	}
+}
+
+// TestChainFullIteration tests that Chain works correctly when fully consumed
+func TestChainFullIteration(t *testing.T) {
+	first := itertools.ToIter([]int{1, 2, 3})
+	second := itertools.ToIter([]int{4, 5, 6})
+
+	chained := first.Chain(second)
+	result := chained.Collect()
+
+	expected := []int{1, 2, 3, 4, 5, 6}
+	if len(result) != len(expected) {
+		t.Errorf("Expected length %d, got %d", len(expected), len(result))
+	}
+
+	for i, v := range expected {
+		if result[i] != v {
+			t.Errorf("Expected %d at index %d, got %d", v, i, result[i])
+		}
+	}
+}
+
+// TestUniqueMultipleIterations tests that Unique works correctly when iterated multiple times
+func TestUniqueMultipleIterations(t *testing.T) {
+	data := []int{1, 2, 2, 3, 3, 3, 4, 4, 4, 4}
+	iter := itertools.ToIter(data).Unique(func(v int) any { return v })
+
+	// First iteration
+	first := iter.Collect()
+	expected := []int{1, 2, 3, 4}
+
+	if len(first) != len(expected) {
+		t.Errorf("First iteration: Expected length %d, got %d", len(expected), len(first))
+	}
+
+	for i, v := range expected {
+		if first[i] != v {
+			t.Errorf("First iteration: Expected %d at index %d, got %d", v, i, first[i])
+		}
+	}
+
+	// Second iteration - should produce same results (fresh map)
+	iter2 := itertools.ToIter(data).Unique(func(v int) any { return v })
+	second := iter2.Collect()
+
+	if len(second) != len(expected) {
+		t.Errorf("Second iteration: Expected length %d, got %d", len(expected), len(second))
+	}
+
+	for i, v := range expected {
+		if second[i] != v {
+			t.Errorf("Second iteration: Expected %d at index %d, got %d", v, i, second[i])
+		}
+	}
+}
+
+// TestFirstOrWithElements tests FirstOr with non-empty iterator
+func TestFirstOrWithElements(t *testing.T) {
+	iter := itertools.ToIter([]int{1, 2, 3})
+	result := iter.FirstOr(999)
+
+	if result != 1 {
+		t.Errorf("Expected 1, got %d", result)
+	}
+}
+
+// TestFirstOrWithEmptyIterator tests FirstOr with empty iterator
+func TestFirstOrWithEmptyIterator(t *testing.T) {
+	iter := itertools.ToIter([]int{})
+	result := iter.FirstOr(999)
+
+	if result != 999 {
+		t.Errorf("Expected 999, got %d", result)
+	}
+}
+
+// TestLastOrWithElements tests LastOr with non-empty iterator
+func TestLastOrWithElements(t *testing.T) {
+	iter := itertools.ToIter([]int{1, 2, 3})
+	result := iter.LastOr(999)
+
+	if result != 3 {
+		t.Errorf("Expected 3, got %d", result)
+	}
+}
+
+// TestLastOrWithEmptyIterator tests LastOr with empty iterator
+func TestLastOrWithEmptyIterator(t *testing.T) {
+	iter := itertools.ToIter([]int{})
+	result := iter.LastOr(999)
+
+	if result != 999 {
+		t.Errorf("Expected 999, got %d", result)
+	}
+}
+
+// TestNthOrWithElements tests NthOr with valid index
+func TestNthOrWithElements(t *testing.T) {
+	iter := itertools.ToIter([]int{10, 20, 30, 40})
+	result := iter.NthOr(2, 999)
+
+	if result != 30 {
+		t.Errorf("Expected 30, got %d", result)
+	}
+}
+
+// TestNthOrWithInvalidIndex tests NthOr with index out of bounds
+func TestNthOrWithInvalidIndex(t *testing.T) {
+	iter := itertools.ToIter([]int{10, 20, 30})
+	result := iter.NthOr(5, 999)
+
+	if result != 999 {
+		t.Errorf("Expected 999, got %d", result)
+	}
+}
+
+// TestNthOrWithEmptyIterator tests NthOr with empty iterator
+func TestNthOrWithEmptyIterator(t *testing.T) {
+	iter := itertools.ToIter([]int{})
+	result := iter.NthOr(0, 999)
+
+	if result != 999 {
+		t.Errorf("Expected 999, got %d", result)
+	}
+}
+
+// TestIsSortedWithEmptyIterator tests IsSorted with empty iterator
+func TestIsSortedWithEmptyIterator(t *testing.T) {
+	iter := itertools.ToIter([]int{})
+	result := iter.IsSorted(func(a, b int) bool { return a < b })
+
+	if !result {
+		t.Errorf("Expected true for empty iterator, got false")
+	}
+}
+
+// TestIsSortedWithSingleElement tests IsSorted with single element
+func TestIsSortedWithSingleElement(t *testing.T) {
+	iter := itertools.ToIter([]int{42})
+	result := iter.IsSorted(func(a, b int) bool { return a < b })
+
+	if !result {
+		t.Errorf("Expected true for single element, got false")
+	}
+}
+
+// TestIsSortedWithSortedElements tests IsSorted with sorted elements
+func TestIsSortedWithSortedElements(t *testing.T) {
+	iter := itertools.ToIter([]int{1, 2, 3, 4, 5})
+	result := iter.IsSorted(func(a, b int) bool { return a < b })
+
+	if !result {
+		t.Errorf("Expected true for sorted elements, got false")
+	}
+}
+
+// TestIsSortedWithUnsortedElements tests IsSorted with unsorted elements
+func TestIsSortedWithUnsortedElements(t *testing.T) {
+	iter := itertools.ToIter([]int{1, 3, 2, 4, 5})
+	result := iter.IsSorted(func(a, b int) bool { return a < b })
+
+	if result {
+		t.Errorf("Expected false for unsorted elements, got true")
+	}
+}
+
+// TestIsSortedWithDuplicates tests IsSorted with duplicate elements
+func TestIsSortedWithDuplicates(t *testing.T) {
+	iter := itertools.ToIter([]int{1, 2, 2, 3, 4})
+	result := iter.IsSorted(func(a, b int) bool { return a < b })
+
+	if !result {
+		t.Errorf("Expected true for sorted elements with duplicates, got false")
+	}
+}
+
+
+// TestUniqueWithComplexKeys tests Unique with complex key function
+func TestUniqueWithComplexKeys(t *testing.T) {
+	type Person struct {
+		Name string
+		Age  int
+	}
+
+	data := []Person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Alice", 35}, // Duplicate name
+		{"Charlie", 25},
+		{"Bob", 25}, // Duplicate name
+	}
+
+	iter := itertools.ToIter(data).Unique(func(p Person) any { return p.Name })
+	result := iter.Collect()
+
+	expected := []Person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Charlie", 25},
+	}
+
+	if len(result) != len(expected) {
+		t.Errorf("Expected length %d, got %d", len(expected), len(result))
+	}
+
+	for i, v := range expected {
+		if result[i].Name != v.Name {
+			t.Errorf("Expected name %s at index %d, got %s", v.Name, i, result[i].Name)
+		}
+	}
+}

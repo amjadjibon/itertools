@@ -2,7 +2,9 @@ package itertools_test
 
 import (
 	"fmt"
+	"runtime"
 	"testing"
+	"time"
 
 	"github.com/amjadjibon/itertools"
 	"github.com/stretchr/testify/assert"
@@ -238,4 +240,126 @@ func TestCartesianProductEmpty(t *testing.T) {
 
 	cartesianProduct := itertools.CartesianProduct(iter1, iter2).Collect()
 	assert.Empty(t, cartesianProduct)
+}
+
+// TestZip_NoGoroutineLeak verifies that Zip properly cleans up goroutines
+// when the iterator is stopped early
+func TestZip_NoGoroutineLeak(t *testing.T) {
+	before := runtime.NumGoroutine()
+
+	// Create large iterators but only consume 5 elements
+	iter1 := itertools.Range(0, 1000000)
+	iter2 := itertools.Range(0, 1000000)
+
+	zipped := itertools.Zip(iter1, iter2).Take(5).Collect()
+
+	assert.Equal(t, 5, len(zipped))
+
+	// Give time for goroutines to clean up
+	time.Sleep(100 * time.Millisecond)
+	runtime.GC()
+
+	after := runtime.NumGoroutine()
+
+	// Should not have leaked goroutines
+	assert.LessOrEqual(t, after, before+1, "Goroutine leak detected")
+}
+
+// TestZip2_NoGoroutineLeak verifies that Zip2 properly cleans up goroutines
+func TestZip2_NoGoroutineLeak(t *testing.T) {
+	before := runtime.NumGoroutine()
+
+	iter1 := itertools.Range(0, 1000000)
+	iter2 := itertools.Range(0, 1000000)
+
+	fill := struct {
+		First  int
+		Second int
+	}{-1, -1}
+
+	zipped := itertools.Zip2(iter1, iter2, fill).Take(5).Collect()
+
+	assert.Equal(t, 5, len(zipped))
+
+	time.Sleep(100 * time.Millisecond)
+	runtime.GC()
+
+	after := runtime.NumGoroutine()
+
+	assert.LessOrEqual(t, after, before+1, "Goroutine leak detected")
+}
+
+// TestZip2_FillValues verifies that Zip2 actually uses fill values
+func TestZip2_FillValues(t *testing.T) {
+	iter1 := itertools.ToIter([]int{1, 2, 3, 4, 5})
+	iter2 := itertools.ToIter([]string{"a", "b"})
+
+	fill := struct {
+		First  int
+		Second string
+	}{-1, "FILL"}
+
+	result := itertools.Zip2(iter1, iter2, fill).Collect()
+
+	assert.Equal(t, 5, len(result))
+	assert.Equal(t, 1, result[0].First)
+	assert.Equal(t, "a", result[0].Second)
+	assert.Equal(t, 2, result[1].First)
+	assert.Equal(t, "b", result[1].Second)
+	// After iter2 ends, should use fill value
+	assert.Equal(t, 3, result[2].First)
+	assert.Equal(t, "FILL", result[2].Second)
+	assert.Equal(t, 4, result[3].First)
+	assert.Equal(t, "FILL", result[3].Second)
+	assert.Equal(t, 5, result[4].First)
+	assert.Equal(t, "FILL", result[4].Second)
+}
+
+// TestZip2_FillBothSides verifies fill works when iter1 is shorter
+func TestZip2_FillBothSides(t *testing.T) {
+	iter1 := itertools.ToIter([]int{1, 2})
+	iter2 := itertools.ToIter([]string{"a", "b", "c", "d"})
+
+	fill := struct {
+		First  int
+		Second string
+	}{-99, "EMPTY"}
+
+	result := itertools.Zip2(iter1, iter2, fill).Collect()
+
+	assert.Equal(t, 4, len(result))
+	assert.Equal(t, 1, result[0].First)
+	assert.Equal(t, "a", result[0].Second)
+	assert.Equal(t, 2, result[1].First)
+	assert.Equal(t, "b", result[1].Second)
+	// After iter1 ends, should use fill value
+	assert.Equal(t, -99, result[2].First)
+	assert.Equal(t, "c", result[2].Second)
+	assert.Equal(t, -99, result[3].First)
+	assert.Equal(t, "d", result[3].Second)
+}
+
+// TestFlatten_EarlyTermination verifies that Flatten stops properly
+func TestFlatten_EarlyTermination(t *testing.T) {
+	iter1 := itertools.Range(0, 100)
+	iter2 := itertools.Range(100, 200)
+	iter3 := itertools.Range(200, 300)
+
+	// Take only 5 elements - should not process iter2 or iter3
+	result := itertools.Flatten(iter1, iter2, iter3).Take(5).Collect()
+
+	assert.Equal(t, 5, len(result))
+	assert.Equal(t, []int{0, 1, 2, 3, 4}, result)
+}
+
+// TestChunkList_Functional verifies ChunkList works correctly
+func TestChunkList_Functional(t *testing.T) {
+	iter := itertools.Range(0, 10)
+	chunks := itertools.ChunkList(iter, 3)
+
+	assert.Equal(t, 4, len(chunks))
+	assert.Equal(t, []int{0, 1, 2}, chunks[0].Collect())
+	assert.Equal(t, []int{3, 4, 5}, chunks[1].Collect())
+	assert.Equal(t, []int{6, 7, 8}, chunks[2].Collect())
+	assert.Equal(t, []int{9}, chunks[3].Collect())
 }

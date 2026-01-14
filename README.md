@@ -191,9 +191,12 @@ These methods modify or operate on the elements of an iterator.
 | `TakeWhile(f func(V) bool)` | Yields elements while the predicate `f` is true.|
 | `DropWhile(f func(V) bool)` | Drops elements while the predicate `f` is true.  |
 | `Count()`        | Counts the total number of elements.                         |
-| `First()`        | Returns the first element.                                   |
-| `Last()`         | Returns the last element.                                    |
-| `Nth(n int)`     | Returns the nth element.                                     |
+| `First()`        | Returns the first element (panics if empty).                 |
+| `Last()`         | Returns the last element (panics if empty).                  |
+| `Nth(n int)`     | Returns the nth element (panics if not enough elements).     |
+| `FirstOr(default V)` | Returns the first element or default if empty.           |
+| `LastOr(default V)` | Returns the last element or default if empty.             |
+| `NthOr(n int, default V)` | Returns the nth element or default if not found.    |
 | `Sort(less func(a, b V) bool)` | Sorts elements according to `less`.          |
 | `Min(less func(a, b V) bool)` | Returns the minimum element.                   |
 | `Max(less func(a, b V) bool)` | Returns the maximum element.                   |
