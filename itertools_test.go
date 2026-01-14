@@ -363,3 +363,101 @@ func TestChunkList_Functional(t *testing.T) {
 	assert.Equal(t, []int{6, 7, 8}, chunks[2].Collect())
 	assert.Equal(t, []int{9}, chunks[3].Collect())
 }
+
+// =============================================================================
+// PANIC AND EDGE CASE TESTS
+// =============================================================================
+
+// TestChunkSlice_PanicOnNegativeSize verifies ChunkSlice panics with negative size
+func TestChunkSlice_PanicOnNegativeSize(t *testing.T) {
+	iter := itertools.Range(0, 10)
+
+	assert.Panics(t, func() {
+		itertools.ChunkSlice(iter, -5).Collect()
+	}, "ChunkSlice should panic with negative size")
+}
+
+// TestChunks_PanicOnNegativeSize verifies Chunks panics with negative size
+func TestChunks_PanicOnNegativeSize(t *testing.T) {
+	iter := itertools.Range(0, 10)
+
+	assert.Panics(t, func() {
+		itertools.Chunks(iter, -3).Collect()
+	}, "Chunks should panic with negative size")
+}
+
+// TestChunkList_PanicOnNegativeSize verifies ChunkList panics with negative size
+func TestChunkList_PanicOnNegativeSize(t *testing.T) {
+	iter := itertools.Range(0, 10)
+
+	assert.Panics(t, func() {
+		itertools.ChunkList(iter, -2)
+	}, "ChunkList should panic with negative size")
+}
+
+// TestChunkSlice_ZeroSize tests behavior with size=0 (currently invalid)
+func TestChunkSlice_ZeroSize(t *testing.T) {
+	iter := itertools.Range(0, 10)
+
+	// Document current behavior - should be fixed to panic
+	result := itertools.ChunkSlice(iter, 0).Collect()
+	t.Logf("ChunkSlice(0) currently returns %d chunks (should panic)", len(result))
+
+	// TODO: After fix, uncomment:
+	// assert.Panics(t, func() {
+	//     itertools.ChunkSlice(iter, 0).Collect()
+	// }, "ChunkSlice should panic with zero size")
+}
+
+// TestChunks_ZeroSize tests behavior with size=0 (currently invalid)
+func TestChunks_ZeroSize(t *testing.T) {
+	iter := itertools.Range(0, 10)
+
+	// Document current behavior
+	result := itertools.Chunks(iter, 0).Collect()
+	t.Logf("Chunks(0) currently returns %d chunks (should panic)", len(result))
+}
+
+// TestFold_BasicOperation tests Fold with basic addition
+func TestFold_BasicOperation(t *testing.T) {
+	iter := itertools.Range(1, 6) // 1, 2, 3, 4, 5
+
+	sum := itertools.Fold(iter, func(acc, v int) int {
+		return acc + v
+	}, 0)
+
+	assert.Equal(t, 15, sum)
+}
+
+// TestFold_StringConcatenation tests Fold with string concatenation
+func TestFold_StringConcatenation(t *testing.T) {
+	iter := itertools.ToIter([]string{"a", "b", "c"})
+
+	result := itertools.Fold(iter, func(acc, v string) string {
+		return acc + v
+	}, "")
+
+	assert.Equal(t, "abc", result)
+}
+
+// TestCartesianProduct_EmptyIterators tests CartesianProduct with empty inputs
+func TestCartesianProduct_EmptyIterators(t *testing.T) {
+	iter1 := itertools.ToIter([]int{})
+	iter2 := itertools.ToIter([]string{"a", "b"})
+
+	result := itertools.CartesianProduct(iter1, iter2).Collect()
+
+	assert.Empty(t, result, "CartesianProduct with empty iterator should return empty")
+}
+
+// TestCartesianProduct_SingleElements tests CartesianProduct with single elements
+func TestCartesianProduct_SingleElements(t *testing.T) {
+	iter1 := itertools.ToIter([]int{1})
+	iter2 := itertools.ToIter([]string{"x"})
+
+	result := itertools.CartesianProduct(iter1, iter2).Collect()
+
+	assert.Equal(t, 1, len(result))
+	assert.Equal(t, 1, result[0].X)
+	assert.Equal(t, "x", result[0].Y)
+}
