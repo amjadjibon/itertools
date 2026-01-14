@@ -15,21 +15,16 @@ type Iterator[V any] struct {
 	seq  iter.Seq[V]
 	curr *V
 	done bool
+	// Pull-based iterator for Next/Current
+	pull func() (V, bool)
+	stop func()
 }
 
 // ToIter creates an Iterator from a slice
 func ToIter[V any](slice []V) *Iterator[V] {
-	ch := make(chan V)
-	go func() {
-		for _, v := range slice {
-			ch <- v
-		}
-		close(ch)
-	}()
-
 	return &Iterator[V]{
 		seq: func(yield func(V) bool) {
-			for v := range ch {
+			for _, v := range slice {
 				if !yield(v) {
 					return
 				}
@@ -44,21 +39,22 @@ func (it *Iterator[V]) Next() bool {
 		return false
 	}
 
-	var next V
-	hasNext := false
-	it.seq(func(v V) bool {
-		next = v
-		hasNext = true
-		return false
-	})
-
-	if hasNext {
-		it.curr = &next
-		return true
+	// Lazy initialization: create pull iterator on first Next() call
+	if it.pull == nil {
+		it.pull, it.stop = iter.Pull(it.seq)
 	}
 
-	it.done = true
-	return false
+	v, ok := it.pull()
+	if !ok {
+		it.done = true
+		if it.stop != nil {
+			it.stop()
+		}
+		return false
+	}
+
+	it.curr = &v
+	return true
 }
 
 // Current returns the current element of the iterator
