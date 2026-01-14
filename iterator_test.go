@@ -962,7 +962,6 @@ func TestIsSortedWithDuplicates(t *testing.T) {
 	}
 }
 
-
 // TestUniqueWithComplexKeys tests Unique with complex key function
 func TestUniqueWithComplexKeys(t *testing.T) {
 	type Person struct {
