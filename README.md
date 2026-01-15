@@ -55,6 +55,72 @@ func main() {
 
 ---
 
+## **Best Practices & Important Notes**
+
+### **⚠️ Always Close Iterators When Using Next/Current**
+
+When using imperative-style iteration with `Next()` and `Current()`, **always call `Close()`** or use `defer iter.Close()` to prevent goroutine leaks:
+
+```go
+// ✅ CORRECT: Use defer to ensure cleanup
+iter := itertools.Range(0, 1000000)
+defer iter.Close()  // Always clean up!
+
+for iter.Next() {
+    if someCondition {
+        break  // Close() will be called via defer
+    }
+    process(iter.Current())
+}
+```
+
+```go
+// ❌ WRONG: Goroutine leak if you break early
+iter := itertools.Range(0, 1000000)
+for iter.Next() {
+    if someCondition {
+        break  // LEAK! Goroutine continues running
+    }
+}
+```
+
+**Note**: Functional-style operations (`Collect()`, `Filter()`, `Map()`, etc.) handle cleanup automatically.
+
+### **⚠️ Avoid Unbounded Operations on Infinite Iterators**
+
+Some operations consume the entire sequence and will cause out-of-memory errors with infinite iterators:
+
+**Unbounded operations**:
+- `Collect()` - Loads all elements into a slice
+- `Unique()` - Builds an unbounded map
+- `GroupBy()` - Builds unbounded maps and slices
+- `Union()`, `Intersection()`, `Difference()` - Build unbounded maps
+- `Partition()`, `Reverse()`, `Sort()`, `Shuffle()` - Collect all elements
+- `Cycle()` - Creates infinite repetition
+
+```go
+// ❌ WRONG: Out of memory!
+infiniteIter := itertools.FromFunc(func() (int, bool) {
+    return rand.Int(), true
+})
+infiniteIter.Collect()  // OOM!
+
+// ✅ CORRECT: Use Take to limit elements
+infiniteIter := itertools.FromFunc(func() (int, bool) {
+    return rand.Int(), true
+})
+result := infiniteIter.Take(1000).Collect()  // OK
+```
+
+### **Input Validation**
+
+Methods validate inputs and panic on invalid arguments:
+- `StepBy(n)` - Panics if `n <= 0`
+- `ChunkSlice(size)`, `Chunks(size)`, `ChunkList(size)` - Panic if `size <= 0`
+- `Take(n)`, `Drop(n)`, `Nth(n)` - Negative values are treated as 0
+
+---
+
 ## **Features**
 - **Chainable API**: Combine transformations like `Filter`, `Map`, `Take`, and `Drop` into one functional-style chain.
 - **Laziness**: Iterators are lazy; they only compute elements as needed.

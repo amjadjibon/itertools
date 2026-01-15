@@ -119,6 +119,36 @@ func (it *Iterator[V]) Current() V {
 	return *it.curr
 }
 
+// Close releases any resources held by the iterator, particularly cleaning up
+// the goroutine spawned by iter.Pull() when using Next/Current iteration.
+//
+// IMPORTANT: Always call Close() when using Next/Current iteration and not
+// fully exhausting the iterator. Failing to do so will leak a goroutine.
+//
+// Close is idempotent - it can be called multiple times safely.
+// Close is automatically called when the iterator is fully exhausted.
+//
+// Best Practice - Use defer for guaranteed cleanup:
+//
+//	iter := itertools.Range(0, 1000000)
+//	defer iter.Close()
+//	for iter.Next() {
+//	    if someCondition {
+//	        break // Close() will be called via defer
+//	    }
+//	    process(iter.Current())
+//	}
+//
+// Note: Close only affects Next/Current iteration. Functional-style operations
+// (Collect, Each, Filter, Map, etc.) handle cleanup automatically.
+func (it *Iterator[V]) Close() {
+	if it.stop != nil {
+		it.stop()
+		it.stop = nil // Make Close idempotent
+	}
+	it.done = true
+}
+
 // Collect consumes the iterator and returns all elements as a slice.
 // After calling Collect, the iterator is exhausted.
 //
@@ -251,6 +281,8 @@ func (it *Iterator[V]) Chain(other *Iterator[V]) *Iterator[V] {
 // Take returns a new iterator that yields at most the first n elements.
 // If the iterator has fewer than n elements, all elements are yielded.
 //
+// If n is negative, it is treated as 0 (returns an empty iterator).
+//
 // Take is lazy and supports early termination.
 //
 // Example:
@@ -259,6 +291,9 @@ func (it *Iterator[V]) Chain(other *Iterator[V]) *Iterator[V] {
 //	first3 := iter.Take(3).Collect()
 //	// first3 is []int{1, 2, 3}
 func (it *Iterator[V]) Take(n int) *Iterator[V] {
+	if n < 0 {
+		n = 0
+	}
 	return &Iterator[V]{
 		seq: func(yield func(V) bool) {
 			i := 0
@@ -276,12 +311,17 @@ func (it *Iterator[V]) Take(n int) *Iterator[V] {
 // Drop returns a new iterator that skips the first n elements and yields the rest.
 // If the iterator has n or fewer elements, the resulting iterator is empty.
 //
+// If n is negative, it is treated as 0 (yields all elements).
+//
 // Example:
 //
 //	iter := itertools.ToIter([]int{1, 2, 3, 4, 5})
 //	rest := iter.Drop(2).Collect()
 //	// rest is []int{3, 4, 5}
 func (it *Iterator[V]) Drop(n int) *Iterator[V] {
+	if n < 0 {
+		n = 0
+	}
 	return &Iterator[V]{
 		seq: func(yield func(V) bool) {
 			i := 0
@@ -375,6 +415,8 @@ func (it *Iterator[V]) Last() V {
 // Nth returns the nth element (0-indexed) of the iterator.
 // It panics if the iterator has fewer than n+1 elements.
 //
+// If n is negative, it is treated as 0 (returns the first element).
+//
 // For a safe alternative that doesn't panic, use NthOr.
 //
 // Example:
@@ -382,6 +424,9 @@ func (it *Iterator[V]) Last() V {
 //	iter := itertools.ToIter([]int{10, 20, 30, 40})
 //	third := iter.Nth(2) // Returns 30
 func (it *Iterator[V]) Nth(n int) V {
+	if n < 0 {
+		n = 0
+	}
 	return it.Drop(n).First()
 }
 
@@ -438,12 +483,17 @@ func (it *Iterator[V]) LastOr(defaultValue V) V {
 // NthOr returns the nth element (0-indexed) of the iterator, or defaultValue if there aren't enough elements.
 // This is a safe alternative to Nth that doesn't panic.
 //
+// If n is negative, it is treated as 0 (returns the first element, or defaultValue if empty).
+//
 // Example:
 //
 //	iter := itertools.ToIter([]int{10, 20, 30})
 //	third := iter.NthOr(2, 999)  // Returns 30
 //	fifth := iter.NthOr(4, 999)  // Returns 999 (not enough elements)
 func (it *Iterator[V]) NthOr(n int, defaultValue V) V {
+	if n < 0 {
+		n = 0
+	}
 	var result V
 	found := false
 	i := 0
@@ -802,12 +852,17 @@ func (it *Iterator[V]) Difference(other *Iterator[V], keyFunc func(V) any) *Iter
 
 // StepBy returns an iterator that yields every nth element (0-indexed).
 //
+// Panics if n <= 0.
+//
 // Example:
 //
 //	iter := itertools.ToIter([]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9})
 //	everyThird := iter.StepBy(3).Collect()
 //	// everyThird is []int{0, 3, 6, 9}
 func (it *Iterator[V]) StepBy(n int) *Iterator[V] {
+	if n <= 0 {
+		panic(fmt.Sprintf("StepBy: step must be positive, got %d", n))
+	}
 	return &Iterator[V]{
 		seq: func(yield func(V) bool) {
 			i := 0

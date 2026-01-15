@@ -2,6 +2,7 @@ package itertools
 
 import (
 	"cmp"
+	"fmt"
 	"iter"
 
 	"golang.org/x/exp/constraints"
@@ -199,12 +200,17 @@ func Product[V any, T Productable](it *Iterator[V], transform func(V) T, one T) 
 //
 // Each chunk is a separate slice - modifications won't affect the original data.
 //
+// Panics if size <= 0.
+//
 // Example:
 //
 //	iter := itertools.ToIter([]int{1, 2, 3, 4, 5, 6, 7})
 //	chunks := itertools.ChunkSlice(iter, 3).Collect()
 //	// chunks is [][]int{{1, 2, 3}, {4, 5, 6}, {7}}
 func ChunkSlice[V any](it *Iterator[V], size int) *Iterator[[]V] {
+	if size <= 0 {
+		panic(fmt.Sprintf("ChunkSlice: size must be positive, got %d", size))
+	}
 	return &Iterator[[]V]{
 		seq: func(yield func([]V) bool) {
 			chunk := make([]V, 0, size)
@@ -236,6 +242,8 @@ func ChunkSlice[V any](it *Iterator[V], size int) *Iterator[[]V] {
 //
 // Unlike ChunkSlice, this returns iterators instead of slices.
 //
+// Panics if size <= 0.
+//
 // Example:
 //
 //	iter := itertools.ToIter([]int{1, 2, 3, 4, 5})
@@ -248,6 +256,9 @@ func ChunkSlice[V any](it *Iterator[V], size int) *Iterator[[]V] {
 //	//         [3 4]
 //	//         [5]
 func Chunks[V any](it *Iterator[V], size int) *Iterator[*Iterator[V]] {
+	if size <= 0 {
+		panic(fmt.Sprintf("Chunks: size must be positive, got %d", size))
+	}
 	return &Iterator[*Iterator[V]]{
 		seq: func(yield func(*Iterator[V]) bool) {
 			chunk := make([]V, 0, size)
@@ -277,12 +288,17 @@ func Chunks[V any](it *Iterator[V], size int) *Iterator[*Iterator[V]] {
 // ChunkList returns a slice of iterators, each containing up to `size` elements.
 // This is a convenience function that collects Chunks into a slice.
 //
+// Panics if size <= 0.
+//
 // Example:
 //
 //	iter := itertools.ToIter([]int{1, 2, 3, 4, 5, 6})
 //	chunks := itertools.ChunkList(iter, 2)
 //	// chunks is []*Iterator with 3 iterators containing [1,2], [3,4], [5,6]
 func ChunkList[V any](it *Iterator[V], size int) []*Iterator[V] {
+	if size <= 0 {
+		panic(fmt.Sprintf("ChunkList: size must be positive, got %d", size))
+	}
 	return Chunks(it, size).Collect()
 }
 
