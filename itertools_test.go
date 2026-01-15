@@ -395,27 +395,24 @@ func TestChunkList_PanicOnNegativeSize(t *testing.T) {
 	}, "ChunkList should panic with negative size")
 }
 
-// TestChunkSlice_ZeroSize tests behavior with size=0 (currently invalid)
+// TestChunkSlice_ZeroSize tests that ChunkSlice panics with size=0
 func TestChunkSlice_ZeroSize(t *testing.T) {
 	iter := itertools.Range(0, 10)
 
-	// Document current behavior - should be fixed to panic
-	result := itertools.ChunkSlice(iter, 0).Collect()
-	t.Logf("ChunkSlice(0) currently returns %d chunks (should panic)", len(result))
-
-	// TODO: After fix, uncomment:
-	// assert.Panics(t, func() {
-	//     itertools.ChunkSlice(iter, 0).Collect()
-	// }, "ChunkSlice should panic with zero size")
+	// Now correctly panics with zero size
+	assert.Panics(t, func() {
+		itertools.ChunkSlice(iter, 0).Collect()
+	}, "ChunkSlice should panic with zero size")
 }
 
-// TestChunks_ZeroSize tests behavior with size=0 (currently invalid)
+// TestChunks_ZeroSize tests that Chunks panics with size=0
 func TestChunks_ZeroSize(t *testing.T) {
 	iter := itertools.Range(0, 10)
 
-	// Document current behavior
-	result := itertools.Chunks(iter, 0).Collect()
-	t.Logf("Chunks(0) currently returns %d chunks (should panic)", len(result))
+	// Now correctly panics with zero size
+	assert.Panics(t, func() {
+		itertools.Chunks(iter, 0).Collect()
+	}, "Chunks should panic with zero size")
 }
 
 // TestFold_BasicOperation tests Fold with basic addition

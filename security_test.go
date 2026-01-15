@@ -136,103 +136,77 @@ func TestStepBy_PanicOnZero(t *testing.T) {
 	}, "StepBy(0) should panic due to division by zero")
 }
 
-// TestStepBy_PanicOnNegative tests that StepBy with negative value
+// TestStepBy_PanicOnNegative tests that StepBy with negative value panics
 func TestStepBy_InvalidWithNegative(t *testing.T) {
 	iter := itertools.Range(0, 10)
 
-	// Currently returns all elements (incorrect behavior)
-	result := iter.StepBy(-1).Collect()
-
-	// After fix, this should panic or return error
-	// For now, we document the incorrect behavior
-	t.Logf("StepBy(-1) currently returns %d elements (should be invalid)", len(result))
-
-	// TODO: After fix, this should panic:
-	// assert.Panics(t, func() {
-	//     iter.StepBy(-1).Collect()
-	// }, "StepBy with negative step should panic")
+	// Now correctly panics with negative values
+	assert.Panics(t, func() {
+		iter.StepBy(-1).Collect()
+	}, "StepBy with negative step should panic")
 }
 
 // =============================================================================
 // PANIC TESTS - ChunkSlice (Note: Duplicate tests are in itertools_test.go)
 // =============================================================================
 
-// TestChunkSlice_InvalidWithZeroSize tests ChunkSlice with size=0
+// TestChunkSlice_InvalidWithZeroSize tests ChunkSlice with size=0 panics
 func TestChunkSlice_InvalidWithZeroSize(t *testing.T) {
 	iter := itertools.Range(0, 10)
 
-	// Currently has unexpected behavior (returns single chunk)
-	result := itertools.ChunkSlice(iter, 0).Collect()
-
-	// Document current incorrect behavior
-	t.Logf("ChunkSlice(0) returns %d chunks (should be invalid)", len(result))
-
-	// TODO: After fix, this should panic:
-	// assert.Panics(t, func() {
-	//     itertools.ChunkSlice(iter, 0).Collect()
-	// }, "ChunkSlice with zero size should panic")
+	// Now correctly panics with zero size
+	assert.Panics(t, func() {
+		itertools.ChunkSlice(iter, 0).Collect()
+	}, "ChunkSlice with zero size should panic")
 }
 
 // =============================================================================
 // PANIC TESTS - Chunks (Note: Duplicate tests are in itertools_test.go)
 // =============================================================================
 
-// TestChunks_InvalidWithZeroSize tests Chunks with size=0
+// TestChunks_InvalidWithZeroSize tests Chunks with size=0 panics
 func TestChunks_InvalidWithZeroSize(t *testing.T) {
 	iter := itertools.Range(0, 10)
 
-	// Test current behavior with size=0
-	result := itertools.Chunks(iter, 0).Collect()
-
-	t.Logf("Chunks(0) returns %d chunks (should be invalid)", len(result))
-
-	// TODO: After fix, should panic
+	// Now correctly panics with zero size
+	assert.Panics(t, func() {
+		itertools.Chunks(iter, 0).Collect()
+	}, "Chunks with zero size should panic")
 }
 
 // =============================================================================
 // EDGE CASE TESTS - Negative Values
 // =============================================================================
 
-// TestTake_NegativeValue tests Take with negative value
+// TestTake_NegativeValue tests Take with negative value (treated as 0)
 func TestTake_NegativeValue(t *testing.T) {
 	iter := itertools.Range(0, 10)
 
-	// Test current behavior
+	// Negative values are now treated as 0 (returns empty)
 	result := iter.Take(-1).Collect()
 
-	// Currently might return empty or all - document behavior
-	t.Logf("Take(-1) returns %d elements", len(result))
-
-	// TODO: After fix, negative should be treated as 0 or panic
-	// assert.Empty(t, result, "Take with negative value should return empty")
+	assert.Empty(t, result, "Take with negative value should return empty (treated as 0)")
 }
 
-// TestDrop_NegativeValue tests Drop with negative value
+// TestDrop_NegativeValue tests Drop with negative value (treated as 0)
 func TestDrop_NegativeValue(t *testing.T) {
 	iter := itertools.Range(0, 10)
 
-	// Test current behavior
+	// Negative values are now treated as 0 (returns all elements)
 	result := iter.Drop(-1).Collect()
 
-	t.Logf("Drop(-1) returns %d elements", len(result))
-
-	// TODO: After fix, negative should be treated as 0 or panic
+	assert.Equal(t, 10, len(result), "Drop with negative value should return all elements (treated as 0)")
+	assert.Equal(t, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, result)
 }
 
-// TestNth_NegativeIndex tests Nth with negative index
+// TestNth_NegativeIndex tests Nth with negative index (treated as 0)
 func TestNth_NegativeIndex(t *testing.T) {
 	iter := itertools.Range(0, 10)
 
-	// Test current behavior - likely panics or returns zero value
-	// Wrap in recover to avoid test failure
-	defer func() {
-		if r := recover(); r != nil {
-			t.Logf("Nth(-1) panicked: %v", r)
-		}
-	}()
-
+	// Negative values are now treated as 0 (returns first element)
 	result := iter.Nth(-1)
-	t.Logf("Nth(-1) returned: %v", result)
+
+	assert.Equal(t, 0, result, "Nth with negative index should return first element (treated as 0)")
 }
 
 // =============================================================================
